@@ -5,7 +5,8 @@ The Meritas Equity Partners website. Static single-page site, no build step.
 | File | What it is |
 |---|---|
 | `index.html` | The entire site — HTML, CSS, JS and images (base64-embedded) in one file |
-| `netlify.toml` | Hosting config: www to apex redirect, security headers, caching |
+| `CNAME` | Tells GitHub Pages the custom domain is meritasep.com |
+| `.nojekyll` | Stops GitHub Pages running Jekyll over the files |
 | `favicon.ico`, `favicon-32.png`, `favicon-512.png`, `apple-touch-icon.png` | Browser and mobile icons |
 | `og-image.png` | Link-preview card for LinkedIn, email, iMessage |
 | `robots.txt`, `sitemap.xml` | Search engine directives |
@@ -13,8 +14,8 @@ The Meritas Equity Partners website. Static single-page site, no build step.
 ## How edits work
 
 1. Claude edits `index.html` and commits to `main`.
-2. Netlify sees the push and rebuilds automatically.
-3. The change is live at meritasep.com in about 30 seconds.
+2. GitHub Pages rebuilds automatically on push.
+3. The change is live at meritasep.com in about a minute.
 
 No build, no dependencies. Editing the file *is* deploying.
 
@@ -31,5 +32,8 @@ No build, no dependencies. Editing the file *is* deploying.
 ## Hosting
 
 - Domain registrar and DNS: WordPress.com (`ns1/ns2/ns3.wordpress.com`)
-- Host: Netlify, connected to this repo
+- Host: GitHub Pages, served from `main` branch root
+- Apex A records: 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153
+- Email: Google Workspace (MX -> aspmx.l.google.com) - never touch the MX or TXT records
+- Contact form: opens the visitor's mail client addressed to info@meritasep.com
 - Contact: info@meritasep.com
