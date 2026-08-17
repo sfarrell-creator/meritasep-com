@@ -837,6 +837,7 @@
           <p style="color:#a49d89; font-size:0.9rem; max-width:36ch;">Whether you're considering a sale, raising capital, or want an outside perspective on your business — we'd like to hear from you.</p>
         </div>
         <form class="contact-form" id="contactForm" novalidate>
+          <input type="text" id="_honey" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
           <div><label for="name">Name</label><input id="name" name="name" type="text" required></div>
           <div><label for="email">Email</label><input id="email" name="email" type="email" required></div>
           <div><label for="message">Message</label><textarea id="message" name="message" required></textarea></div>
@@ -989,20 +990,90 @@
     var f = document.getElementById('contactForm');
     if(!f) return;
     var btn = f.querySelector('button[type="submit"]');
-    var orig = btn ? btn.textContent : '';
+    var orig = btn ? btn.textContent : 'Send message';
+    var ENDPOINT = 'https://formsubmit.co/ajax/info@meritasep.com';
+
+    function say(msg, revert){
+      if(!btn) return;
+      btn.textContent = msg;
+      if(revert) setTimeout(function(){ btn.textContent = orig; btn.disabled = false; }, 3000);
+    }
+
+    function mailtoFallback(name, email, message){
+      var subject = 'Website enquiry — ' + name;
+      var body = message + '\n\n—\n' + name + '\n' + email + '\nSent from meritasep.com';
+      window.location.href = 'mailto:info@meritasep.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    }
+
+    function success(name){
+      var wrap = document.createElement('div');
+      wrap.setAttribute('role','status');
+      wrap.style.cssText = 'display:flex;flex-direction:column;gap:0.9rem;align-items:flex-start;padding:1.6rem 0;';
+      var tiles = document.createElement('div');
+      tiles.style.cssText = 'display:flex;gap:3px;';
+      ['#fbf9f5','#deb649','rgba(251,249,245,0.22)','rgba(251,249,245,0.22)','rgba(251,249,245,0.22)'].forEach(function(c){
+        var s = document.createElement('span');
+        s.style.cssText = 'width:16px;height:16px;display:block;background:'+c+';';
+        tiles.appendChild(s);
+      });
+      var h = document.createElement('p');
+      h.textContent = 'Thank you' + (name ? ', ' + name.split(' ')[0] : '') + '.';
+      h.style.cssText = 'font-family:var(--serif);font-size:1.6rem;line-height:1.15;margin:0;color:var(--paper);';
+      var p = document.createElement('p');
+      p.textContent = 'Your message is with us. We read everything ourselves and will be in touch shortly.';
+      p.style.cssText = 'margin:0;max-width:38ch;font-size:0.92rem;color:#a49d89;';
+      wrap.appendChild(tiles); wrap.appendChild(h); wrap.appendChild(p);
+      f.parentNode.replaceChild(wrap, f);
+    }
+
     f.addEventListener('submit', function(e){
       e.preventDefault();
       var name = (f.querySelector('#name')||{}).value || '';
       var email = (f.querySelector('#email')||{}).value || '';
-      var msg = (f.querySelector('#message')||{}).value || '';
-      if(!name.trim() || !email.trim() || !msg.trim()){
-        if(btn){ btn.textContent = 'Please fill in all three fields'; setTimeout(function(){ btn.textContent = orig; }, 2600); }
-        return;
-      }
-      var subject = 'Website enquiry \u2014 ' + name.trim();
-      var body = msg.trim() + '\n\n\u2014\n' + name.trim() + '\n' + email.trim() + '\nSent from meritasep.com';
-      window.location.href = 'mailto:info@meritasep.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-      if(btn){ btn.textContent = 'Opening your email\u2026'; setTimeout(function(){ btn.textContent = orig; }, 4000); }
+      var message = (f.querySelector('#message')||{}).value || '';
+      var trap = f.querySelector('#_honey');
+      name = name.trim(); email = email.trim(); message = message.trim();
+
+      if(trap && trap.value) return;
+      if(!name || !email || !message){ say('Please fill in all three fields', true); return; }
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ say('That email address looks incomplete', true); return; }
+
+      if(btn){ btn.disabled = true; }
+      say('Sending…', false);
+
+      var payload = {
+        name: name,
+        email: email,
+        message: message,
+        _subject: 'meritasep.com enquiry — ' + name,
+        _replyto: email,
+        _template: 'table',
+        _captcha: 'false'
+      };
+
+      var done = false;
+      var timer = setTimeout(function(){
+        if(done) return; done = true;
+        say('Opening your email…', true);
+        mailtoFallback(name, email, message);
+      }, 12000);
+
+      fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function(r){ return r.json().catch(function(){ return {}; }); })
+      .then(function(d){
+        if(done) return; done = true; clearTimeout(timer);
+        if(d && (d.success === 'true' || d.success === true)){ success(name); }
+        else { say('Opening your email…', true); mailtoFallback(name, email, message); }
+      })
+      .catch(function(){
+        if(done) return; done = true; clearTimeout(timer);
+        say('Opening your email…', true);
+        mailtoFallback(name, email, message);
+      });
     });
   })();
 </script>
