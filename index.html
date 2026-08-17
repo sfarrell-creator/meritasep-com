@@ -991,7 +991,7 @@
     if(!f) return;
     var btn = f.querySelector('button[type="submit"]');
     var orig = btn ? btn.textContent : 'Send message';
-    var ENDPOINT = 'https://formsubmit.co/ajax/info@meritasep.com';
+    var ENDPOINT = 'https://formsubmit.co/ajax/sfarrell@meritasep.com';
 
     function say(msg, revert){
       if(!btn) return;
@@ -1047,6 +1047,7 @@
         message: message,
         _subject: 'meritasep.com enquiry — ' + name,
         _replyto: email,
+        _cc: 'info@meritasep.com',
         _template: 'table',
         _captcha: 'false'
       };
