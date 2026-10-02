@@ -10,7 +10,6 @@ The Meritas Equity Partners website. Static single-page site, no build step.
 | `favicon.ico`, `favicon-32.png`, `favicon-512.png`, `apple-touch-icon.png` | Browser and mobile icons |
 | `og-image.png` | Link-preview card for LinkedIn, email, iMessage |
 | `scorecard/index.html` | Exit Readiness Scorecard (meritasep.com/scorecard/), a free lead-capture quiz; results email via FormSubmit |
-| `tools/` | Meritas Tools hub and one sales page per paid product (generated from one template); order/apply forms email via FormSubmit |
 | `robots.txt`, `sitemap.xml` | Search engine directives |
 
 ## How edits work
