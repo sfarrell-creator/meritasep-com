@@ -277,6 +277,10 @@
       '<p class="lede" style="margin-top:0;">Thanks' + (lead.name ? ', ' + esc(lead.name.split(' ')[0]) : '') + '. Your biggest gap is ' + esc(weakest.name.toLowerCase()) + '. In a free 30-minute call we’ll go through your answers and tell you plainly what we’d fix first. If it makes sense, our three-week Value Diagnostic turns this into a full 12-month roadmap.</p>' +
       '<div class="nav"><a class="btn gold" href="/#contact">Book a 30-minute call</a><button class="btn ghost" id="again" type="button">Retake the scorecard</button></div>' +
       '<p class="note">Or email <a href="mailto:info@meritasep.com" style="color:inherit;">info@meritasep.com</a></p></div>'));
+    sec.appendChild(el(
+      '<div class="cta"><span class="eyebrow">Want the number?</span>' +
+      '<p class="lede" style="margin-top:0;">Our Buyer’s-Eye Valuation gives you a confidential value range and the five things moving your price, in 10 business days for a $1,500 fixed fee.</p>' +
+      '<div><a class="btn ghost" href="/valuation/">See the Buyer’s-Eye Valuation</a></div></div>'));
     app.appendChild(sec);
     document.getElementById('again').onclick = function(){ answers.fill(null); unlocked = false; step = -1; intro(); };
   }

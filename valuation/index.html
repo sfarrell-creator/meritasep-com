@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buyer's-Eye Valuation | Meritas Equity Partners</title>
+<meta name="description" content="What would a buyer pay for your business? A confidential, investor-grade valuation range for owners of $5M–$75M companies in Upstate NY. 10 business days, $1,500 fixed fee, credited toward a Value Diagnostic.">
+<link rel="canonical" href="https://meritasep.com/valuation/">
+<meta name="theme-color" content="#14120f">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Meritas Equity Partners">
+<meta property="og:url" content="https://meritasep.com/valuation/">
+<meta property="og:title" content="Buyer's-Eye Valuation | Meritas Equity Partners">
+<meta property="og:description" content="What would a buyer pay for your business? A confidential valuation range and the five things moving your price. 10 business days.">
+<meta property="og:image" content="https://meritasep.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  /* Product page for the Buyer's-Eye Valuation; same brand tokens as /scorecard/. */
+  :root{
+    --bg:#fbf9f5; --surface:#ffffff; --ink:#14120f; --muted:#6b6559; --line:#e4dfd3;
+    --gold:#b8921c; --gold-soft:rgba(201,162,39,0.14); --on-gold:#14120f;
+    --good:#3f7a4f; --warn:#b07a12; --bad:#a3442f;
+    --serif:"Fraunces", Georgia, "Times New Roman", serif;
+    --sans:"Archivo", "Helvetica Neue", Arial, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --bg:#14120f; --surface:#1c1912; --ink:#f2efe7; --muted:#a49d89; --line:#35311f;
+    --gold:#deb649; --gold-soft:rgba(222,182,73,0.14); --on-gold:#14120f;
+    --good:#7fb88d; --warn:#deb649; --bad:#e08a74; color-scheme:dark; } }
+  :root[data-theme="dark"]{
+    --bg:#14120f; --surface:#1c1912; --ink:#f2efe7; --muted:#a49d89; --line:#35311f;
+    --gold:#deb649; --gold-soft:rgba(222,182,73,0.14); --on-gold:#14120f;
+    --good:#7fb88d; --warn:#deb649; --bad:#e08a74; color-scheme:dark; }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.55; padding:0 16px; }
+  .wrap{ max-width:640px; margin:0 auto; padding-block:40px 64px; }
+  .home{ display:inline-flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; font-family:var(--mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:40px; }
+  .home .tiles{ margin:0; }
+  .tiles{ display:flex; gap:3px; margin-bottom:18px; }
+  .tiles span{ width:14px; height:14px; background:var(--ink); }
+  .tiles span:nth-child(2){ background:var(--gold); }
+  .tiles span:nth-child(n+3){ opacity:0.18; }
+  .eyebrow{ font-family:var(--mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  h1,h2{ font-family:var(--serif); font-weight:600; line-height:1.12; text-wrap:balance; margin:0; }
+  h1{ font-size:clamp(2rem, 6vw, 2.8rem); margin-top:10px; }
+  h2{ font-size:clamp(1.4rem, 4.4vw, 1.75rem); }
+  p{ margin:0; }
+  .lede{ color:var(--muted); font-size:1.05rem; margin-top:16px; max-width:56ch; }
+  .facts{ display:flex; flex-wrap:wrap; gap:8px 24px; margin-top:24px; font-family:var(--mono); font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+  .btn{ display:inline-flex; align-items:center; gap:8px; font:600 15px var(--sans); padding:14px 22px; border:1px solid var(--ink);
+    background:var(--ink); color:var(--bg); cursor:pointer; text-decoration:none; transition:background .2s, color .2s; }
+  .btn:hover{ background:transparent; color:var(--ink); }
+  .btn.gold{ background:var(--gold); border-color:var(--gold); color:var(--on-gold); }
+  .btn.gold:hover{ background:transparent; color:var(--ink); }
+  .btn.ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
+  .btn.ghost:hover{ border-color:var(--ink); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+  .stack{ display:grid; gap:28px; }
+
+
+  .wrap{ max-width:720px; }
+  section{ padding-top:48px; }
+  .hero-cta{ display:flex; gap:12px; flex-wrap:wrap; margin-top:28px; }
+  .price{ font-family:var(--serif); font-weight:600; font-size:2rem; }
+  .price small{ display:block; font-family:var(--sans); font-weight:400; font-size:0.95rem; color:var(--muted); margin-top:4px; }
+  .items{ display:grid; gap:0; border-top:1px solid var(--line); margin-top:20px; }
+  .item{ display:grid; grid-template-columns:44px 1fr; gap:12px; padding:18px 0; border-bottom:1px solid var(--line); }
+  .item .n{ font-family:var(--mono); font-size:12px; color:var(--gold); padding-top:4px; }
+  .item h3{ font-family:var(--sans); font-size:1.05rem; font-weight:600; margin:0 0 4px; }
+  .item p{ color:var(--muted); }
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px; }
+  .steps div{ background:var(--surface); border:1px solid var(--line); padding:18px; }
+  .steps b{ display:block; font-family:var(--mono); font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; font-weight:500; }
+  .steps p{ font-size:0.95rem; color:var(--muted); }
+  @media (max-width:620px){ .steps{ grid-template-columns:1fr; } }
+  .two{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:20px; }
+  @media (max-width:620px){ .two{ grid-template-columns:1fr; } }
+  .two h3{ font-family:var(--mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:500; margin:0 0 10px; }
+  ul.plain{ margin:0; padding:0; list-style:none; display:grid; gap:8px; }
+  ul.plain li{ padding-left:18px; position:relative; }
+  ul.plain li::before{ content:""; position:absolute; left:0; top:0.62em; width:7px; height:7px; background:var(--gold); }
+  ul.plain.no li::before{ background:var(--line); }
+  details{ border-bottom:1px solid var(--line); padding:14px 0; }
+  details:first-of-type{ border-top:1px solid var(--line); }
+  summary{ cursor:pointer; font-weight:600; }
+  details p{ color:var(--muted); margin-top:8px; }
+  form.req{ border:1px solid var(--line); background:var(--surface); padding:24px; display:grid; gap:16px; margin-top:20px; }
+  form.req .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:520px){ form.req .row{ grid-template-columns:1fr; } }
+  label{ display:block; font-family:var(--mono); font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  input,select,textarea{ width:100%; font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); padding:11px 12px; border-radius:0; }
+  textarea{ min-height:90px; resize:vertical; }
+  input:focus,select:focus,textarea:focus{ outline:none; border-color:var(--gold); }
+  .err{ color:var(--bad); font-size:0.9rem; }
+  .fine{ color:var(--muted); font-size:0.85rem; }
+  .done{ border:1px solid var(--gold); background:var(--gold-soft); padding:24px; margin-top:20px; }
+  .done h3{ font-family:var(--serif); font-size:1.4rem; margin:0 0 8px; }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="home" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Meritas Equity Partners</a>
+  <main>
+    <span class="eyebrow">Buyer’s-Eye Valuation</span>
+    <h1>What would a buyer pay for your business?</h1>
+    <p class="lede">A confidential, investor-grade valuation range for owners of $5M–$75M companies, plus the five things moving your price up or down. Prepared by people who buy and invest in businesses like yours.</p>
+    <div class="facts"><span>$1,500 fixed fee</span><span>10 business days</span><span>Confidential, NDA included</span><span>Credited toward a Value Diagnostic</span></div>
+    <div class="hero-cta"><a class="btn gold" href="#request">Request your valuation</a><a class="btn ghost" href="/scorecard/">Take the free scorecard first</a></div>
+
+    <section>
+      <h2>What you get</h2>
+      <div class="items">
+        <div class="item"><span class="n">01</span><div><h3>An indicative value range</h3><p>Low, mid and high enterprise value, built from your normalized earnings and what buyers are paying for companies of your size and industry.</p></div></div>
+        <div class="item"><span class="n">02</span><div><h3>Your adjusted EBITDA bridge</h3><p>Every add-back, sorted into the ones a buyer will accept and the ones they will challenge in diligence.</p></div></div>
+        <div class="item"><span class="n">03</span><div><h3>Your five price movers</h3><p>What is lifting your multiple and what is discounting it, such as customer concentration, owner dependence or reporting quality, with a dollar estimate for each.</p></div></div>
+        <div class="item"><span class="n">04</span><div><h3>A 45-minute readout</h3><p>Walk through the numbers with a Meritas partner by video, or in person in Buffalo or Rochester. The report is yours to keep.</p></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>How it works</h2>
+      <div class="steps">
+        <div><b>Day 0 · Request</b><p>Two-minute form below. We confirm fit within one business day and send a mutual NDA and invoice.</p></div>
+        <div><b>Day 1 · Send</b><p>Three years of financials, year-to-date numbers and a short questionnaire. About 30 minutes of your time.</p></div>
+        <div><b>Day 10 · Readout</b><p>Your valuation report and a 45-minute walkthrough of what drives the number.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="two">
+        <div><h3>Built for</h3><ul class="plain">
+          <li>Owners of $5M–$75M revenue companies</li>
+          <li>Thinking about a sale, recapitalization or succession in the next one to five years</li>
+          <li>Fielding calls from buyers and wanting a number of their own first</li>
+          <li>Or simply wanting to know what they have built</li></ul></div>
+        <div><h3>What it isn’t</h3><ul class="plain no">
+          <li>A certified appraisal for tax, estate, SBA lending or litigation. If you need one, we will refer you.</li>
+          <li>A listing agreement. There is no obligation to sell, or to work with us again.</li></ul></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="price">$1,500<small>fixed fee, credited in full if you start a Value Diagnostic within 60 days</small></div>
+    </section>
+
+    <section>
+      <h2>Questions</h2>
+      <div style="margin-top:16px;">
+        <details><summary>Is this confidential?</summary><p>Yes. We sign a mutual NDA before you send anything, we never contact your customers, employees or lenders, and nothing is shared outside Meritas.</p></details>
+        <details><summary>What do I need to send?</summary><p>Profit and loss statements and balance sheets for the last three years (tax returns are fine), year-to-date numbers, and revenue by your top ten customers. Customer names can be coded.</p></details>
+        <details><summary>How accurate is the range?</summary><p>It is the range we would expect serious buyers to discuss for your business today, based on normalized earnings and current market multiples. The final price in any deal depends on the buyer, terms and diligence, which is why we show you what moves it.</p></details>
+        <details><summary>Who prepares it?</summary><p>The partners of Meritas Equity Partners: a former Chief Revenue Officer who has worked in private equity, and a former Bank of America Managing Director. We invest in lower-middle-market companies in Upstate NY ourselves.</p></details>
+        <details><summary>What happens after?</summary><p>Nothing, unless you want it to. Some owners use the report to plan. Others start our three-week Value Diagnostic to build a roadmap for raising the number, and the $1,500 is credited in full.</p></details>
+      </div>
+    </section>
+
+    <section id="request">
+      <h2>Request your valuation</h2>
+      <p class="lede" style="margin-top:8px;">We reply within one business day. No payment is taken until we confirm we can help.</p>
+      <form class="req" id="req" novalidate>
+        <div class="row"><div><label for="v-name">Name</label><input id="v-name" autocomplete="name"></div>
+        <div><label for="v-email">Work email</label><input id="v-email" type="email" autocomplete="email"></div></div>
+        <div class="row"><div><label for="v-co">Company</label><input id="v-co" autocomplete="organization"></div>
+        <div><label for="v-phone">Phone (optional)</label><input id="v-phone" type="tel" autocomplete="tel"></div></div>
+        <div class="row"><div><label for="v-rev">Annual revenue</label><select id="v-rev"><option value="">Select</option><option>Under $5M</option><option>$5M–$15M</option><option>$15M–$40M</option><option>$40M–$75M</option><option>Over $75M</option></select></div>
+        <div><label for="v-time">Thinking about a transaction</label><select id="v-time"><option value="">Select</option><option>Within 12 months</option><option>In 1–3 years</option><option>In 3–5 years</option><option>No plans, just want the number</option></select></div></div>
+        <div><label for="v-msg">Anything we should know (optional)</label><textarea id="v-msg" placeholder="Industry, ownership, what prompted the question"></textarea></div>
+        <p class="err" id="v-err" hidden></p>
+        <div><button class="btn gold" type="submit" id="v-btn">Request my valuation</button></div>
+        <p class="fine">Confidential. We never share your details.</p>
+      </form>
+      <div class="done" id="v-done" hidden><h3>Thanks, we have it.</h3><p>A Meritas partner will reply within one business day with next steps and an NDA. Questions in the meantime: <a href="mailto:info@meritasep.com" style="color:inherit;">info@meritasep.com</a></p></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  var f = document.getElementById('req');
+  f.onsubmit = function(e){
+    e.preventDefault();
+    function v(id){ return document.getElementById(id).value.trim(); }
+    var n = v('v-name'), m = v('v-email'), co = v('v-co'), rev = v('v-rev'), err = document.getElementById('v-err');
+    if(!n || !m || !co || !rev){ err.textContent = 'Add your name, email, company and revenue range.'; err.hidden = false; return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){ err.textContent = 'That email address looks incomplete.'; err.hidden = false; return; }
+    err.hidden = true;
+    var btn = document.getElementById('v-btn'); btn.disabled = true; btn.textContent = 'Sending…';
+    var payload = {
+      name: n, email: m, company: co, phone: v('v-phone') || '\u2014', revenue: rev,
+      timeline: v('v-time') || '\u2014', message: v('v-msg') || '\u2014',
+      interest: 'Buyer\u2019s-Eye Valuation ($1,500)',
+      _subject: '[Valuation request] ' + n + ' (' + co + ', ' + rev + ')',
+      _replyto: m, _cc: 'info@meritasep.com', _template: 'table', _captcha: 'false'
+    };
+    function done(){ f.hidden = true; document.getElementById('v-done').hidden = false; }
+    fetch('https://formsubmit.co/ajax/1cab37afc5edbd5dcca20583726aa5bf', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(done, function(){
+      window.location.href = 'mailto:info@meritasep.com?subject=' + encodeURIComponent(payload._subject) +
+        '&body=' + encodeURIComponent('Name: ' + n + '\nCompany: ' + co + '\nRevenue: ' + rev + '\nTimeline: ' + payload.timeline + '\n\n' + payload.message);
+    });
+  };
+})();
+</script>
+</body>
+</html>
