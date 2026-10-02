@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exit Readiness Scorecard | Meritas Equity Partners</title>
+<meta name="description" content="How would a buyer see your business? A free 5-minute, 12-question scorecard from Meritas Equity Partners, a Buffalo, NY private equity firm. Get an instant exit readiness score.">
+<link rel="canonical" href="https://meritasep.com/scorecard/">
+<meta name="theme-color" content="#14120f">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Meritas Equity Partners">
+<meta property="og:url" content="https://meritasep.com/scorecard/">
+<meta property="og:title" content="Exit Readiness Scorecard | Meritas Equity Partners">
+<meta property="og:description" content="How would a buyer see your business? 12 questions, 5 minutes, an instant score.">
+<meta property="og:image" content="https://meritasep.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  /* Layout: one narrow column, one question per screen, Meritas brand tokens (ink, paper, gold, stone). */
+  :root{
+    --bg:#fbf9f5; --surface:#ffffff; --ink:#14120f; --muted:#6b6559; --line:#e4dfd3;
+    --gold:#b8921c; --gold-soft:rgba(201,162,39,0.14); --on-gold:#14120f;
+    --good:#3f7a4f; --warn:#b07a12; --bad:#a3442f;
+    --serif:"Fraunces", Georgia, "Times New Roman", serif;
+    --sans:"Archivo", "Helvetica Neue", Arial, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --bg:#14120f; --surface:#1c1912; --ink:#f2efe7; --muted:#a49d89; --line:#35311f;
+    --gold:#deb649; --gold-soft:rgba(222,182,73,0.14); --on-gold:#14120f;
+    --good:#7fb88d; --warn:#deb649; --bad:#e08a74; color-scheme:dark; } }
+  :root[data-theme="dark"]{
+    --bg:#14120f; --surface:#1c1912; --ink:#f2efe7; --muted:#a49d89; --line:#35311f;
+    --gold:#deb649; --gold-soft:rgba(222,182,73,0.14); --on-gold:#14120f;
+    --good:#7fb88d; --warn:#deb649; --bad:#e08a74; color-scheme:dark; }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.55; padding:0 16px; }
+  .wrap{ max-width:640px; margin:0 auto; padding-block:40px 64px; }
+  .home{ display:inline-flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; font-family:var(--mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:40px; }
+  .home .tiles{ margin:0; }
+  .tiles{ display:flex; gap:3px; margin-bottom:18px; }
+  .tiles span{ width:14px; height:14px; background:var(--ink); }
+  .tiles span:nth-child(2){ background:var(--gold); }
+  .tiles span:nth-child(n+3){ opacity:0.18; }
+  .eyebrow{ font-family:var(--mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  h1,h2{ font-family:var(--serif); font-weight:600; line-height:1.12; text-wrap:balance; margin:0; }
+  h1{ font-size:clamp(2rem, 6vw, 2.8rem); margin-top:10px; }
+  h2{ font-size:clamp(1.4rem, 4.4vw, 1.75rem); }
+  p{ margin:0; }
+  .lede{ color:var(--muted); font-size:1.05rem; margin-top:16px; max-width:56ch; }
+  .facts{ display:flex; flex-wrap:wrap; gap:8px 24px; margin-top:24px; font-family:var(--mono); font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+  .btn{ display:inline-flex; align-items:center; gap:8px; font:600 15px var(--sans); padding:14px 22px; border:1px solid var(--ink);
+    background:var(--ink); color:var(--bg); cursor:pointer; text-decoration:none; transition:background .2s, color .2s; }
+  .btn:hover{ background:transparent; color:var(--ink); }
+  .btn.gold{ background:var(--gold); border-color:var(--gold); color:var(--on-gold); }
+  .btn.gold:hover{ background:transparent; color:var(--ink); }
+  .btn.ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
+  .btn.ghost:hover{ border-color:var(--ink); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+  .stack{ display:grid; gap:28px; }
+
+  .progress{ display:flex; align-items:center; gap:12px; }
+  .bar{ flex:1; height:3px; background:var(--line); }
+  .bar i{ display:block; height:100%; width:0; background:var(--gold); transition:width .3s; }
+  .count{ font-family:var(--mono); font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .options{ display:grid; gap:10px; }
+  .opt{ text-align:left; width:100%; font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line);
+    padding:14px 16px; cursor:pointer; display:flex; gap:14px; align-items:flex-start; transition:border-color .2s, background .2s; }
+  .opt:hover{ border-color:var(--muted); }
+  .opt[aria-pressed="true"]{ border-color:var(--gold); background:var(--gold-soft); }
+  .opt .k{ font-family:var(--mono); font-size:12px; color:var(--muted); padding-top:3px; min-width:14px; }
+  .nav{ display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+
+  .score{ display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap; }
+  .big{ font-family:var(--serif); font-weight:600; font-size:clamp(4rem, 16vw, 6rem); line-height:0.9; font-variant-numeric:tabular-nums; }
+  .big small{ font-size:0.3em; color:var(--muted); font-weight:400; }
+  .band{ font-family:var(--mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase; padding:6px 10px; border:1px solid currentColor; }
+  .cats{ display:grid; gap:18px; }
+  .cat-head{ display:flex; justify-content:space-between; gap:12px; font-weight:600; }
+  .cat-head span:last-child{ font-family:var(--mono); font-weight:500; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .meter{ height:8px; background:var(--line); margin-top:8px; }
+  .meter i{ display:block; height:100%; }
+  .cat p{ color:var(--muted); font-size:0.95rem; margin-top:8px; }
+  .locked{ position:relative; }
+  .locked .cats{ filter:blur(6px); user-select:none; pointer-events:none; }
+  .gate{ border:1px solid var(--line); background:var(--surface); padding:24px; display:grid; gap:16px; }
+  .gate .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:520px){ .gate .row{ grid-template-columns:1fr; } }
+  label{ display:block; font-family:var(--mono); font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  input{ width:100%; font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); padding:11px 12px; border-radius:0; }
+  input:focus{ outline:none; border-color:var(--gold); }
+  .err{ color:var(--bad); font-size:0.9rem; }
+  .fine{ color:var(--muted); font-size:0.85rem; }
+  .cta{ border-top:1px solid var(--line); padding-top:28px; display:grid; gap:14px; }
+  .note{ font-family:var(--mono); font-size:12px; color:var(--muted); }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="home" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Meritas Equity Partners</a>
+  <main id="app"></main>
+</div>
+
+<script>
+(function(){
+  var CATS = [
+    { id:'cash', name:'Cash and financials', low:'A buyer will price in risk until the numbers close fast and forecast reliably. Monthly closes, a 13-week cash view and CPA-reviewed statements are usually the quickest value lift.', high:'Your financial reporting would hold up well in diligence.' },
+    { id:'rev', name:'Revenue engine', low:'Buyers discount revenue that is concentrated, unpredictable or dependent on you to sell. Broadening the customer base and building a pipeline others own changes the multiple.', high:'Your revenue looks diversified and repeatable to an investor.' },
+    { id:'team', name:'Team and owner dependence', low:'If the business needs you to run, a buyer is buying a job, not a company. A leadership bench and a weekly scorecard are what let you step back.', high:'The business can run without you, which buyers pay for.' },
+    { id:'deal', name:'Deal readiness', low:'Without a clear goal, a value range and clean documents, owners usually leave money on the table or lose time in diligence. Twelve to eighteen months of preparation pays for itself.', high:'You have the groundwork for a well-run sale process.' }
+  ];
+  var Q = [
+    { c:'cash', q:'How soon after month-end are your books closed?', o:['We don’t close monthly','More than 30 days','Within three weeks','Within 10 days, and someone reviews them'] },
+    { c:'cash', q:'How far ahead can you see your cash position?', o:['I check the bank balance','About a month','A rolling 13-week forecast','A 13-week forecast and an annual budget we track against'] },
+    { c:'cash', q:'What outside work is done on your financial statements?', o:['Tax returns only','Compiled by a CPA','Reviewed by a CPA','Audited'] },
+    { c:'rev', q:'How much of your revenue comes from your largest customer?', o:['More than 30%','15% to 30%','5% to 15%','Under 5%'] },
+    { c:'rev', q:'How much of your revenue is recurring or under contract?', o:['Under 10%','10% to 30%','30% to 60%','More than 60%'] },
+    { c:'rev', q:'Who brings in new business?', o:['Mostly me','Me and one or two others','A sales team, but I still close the big deals','A sales team with its own pipeline and targets'] },
+    { c:'team', q:'If you stepped away for 60 days, what would happen?', o:['The business would stall','Results would slip noticeably','It would run with a few check-ins','It would run normally'] },
+    { c:'team', q:'What does your leadership team look like?', o:['No one between me and the front line','One or two key people','Leaders in most functions','A full team with clear accountability and incentives'] },
+    { c:'team', q:'Do you run the business on a scorecard?', o:['No','We watch a few numbers informally','A monthly KPI report','A weekly scorecard each leader owns'] },
+    { c:'deal', q:'Do you know what your business is worth today?', o:['No idea','A rough guess','An informal view from a banker or advisor','A formal valuation in the last two years'] },
+    { c:'deal', q:'How organized are your contracts, ownership documents and records?', o:['Scattered','Some gaps','Mostly in order','Organized and ready to share with a buyer'] },
+    { c:'deal', q:'Have you set a goal and timeline for your exit?', o:['Not yet','A vague idea','A clear goal but no plan','A clear goal, timeline and number'] }
+  ];
+  var BANDS = [
+    { min:85, name:'Buyer-ready', tone:'var(--good)', text:'Your business shows the traits buyers pay a premium for. The work now is protecting that and timing the market.' },
+    { min:70, name:'Strong foundation', tone:'var(--good)', text:'A buyer would see a solid business with a few gaps to close. Fixing them before a process typically lifts the price.' },
+    { min:45, name:'Building', tone:'var(--warn)', text:'You have real strengths, but a buyer would find gaps that lower the price or stretch the deal terms.' },
+    { min:0, name:'Early stage', tone:'var(--bad)', text:'A buyer today would discount heavily for risk. The good news is that these are fixable, and the earlier you start the more value you keep.' }
+  ];
+
+  var app = document.getElementById('app');
+  var answers = new Array(Q.length).fill(null);
+  var step = -1, unlocked = false, lead = {};
+
+  function el(html){ var d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function scores(){
+    var by = {}; CATS.forEach(function(c){ by[c.id] = 0; });
+    var total = 0;
+    Q.forEach(function(q, i){ var v = answers[i] || 0; by[q.c] += v; total += v; });
+    var pct = {}; CATS.forEach(function(c){ pct[c.id] = Math.round(by[c.id] / 9 * 100); });
+    return { total: Math.round(total / (Q.length * 3) * 100), cats: pct };
+  }
+
+  function intro(){
+    app.innerHTML = '';
+    app.appendChild(el(
+      '<section class="stack">' +
+        '<div><span class="eyebrow">Exit Readiness Scorecard</span>' +
+        '<h1>How would a buyer see your business?</h1>' +
+        '<p class="lede">Twelve questions, written by private equity investors, on the four things buyers look at first. You get an instant readiness score and the areas costing you the most value.</p>' +
+        '<div class="facts"><span>5 minutes</span><span>12 questions</span><span>Free</span></div></div>' +
+        '<div><button class="btn gold" id="start">Start the scorecard</button></div>' +
+      '</section>'));
+    document.getElementById('start').onclick = function(){ step = 0; question(); };
+  }
+
+  function question(){
+    var q = Q[step], cat = CATS.filter(function(c){ return c.id === q.c; })[0];
+    app.innerHTML = '';
+    var s = el('<section class="stack"></section>');
+    s.appendChild(el('<div class="progress"><div class="bar"><i style="width:' + (step / Q.length * 100) + '%"></i></div><span class="count">' + (step + 1) + ' / ' + Q.length + '</span></div>'));
+    s.appendChild(el('<div><span class="eyebrow">' + esc(cat.name) + '</span><h2 style="margin-top:8px;">' + esc(q.q) + '</h2></div>'));
+    var opts = el('<div class="options" role="group" aria-label="Answers"></div>');
+    q.o.forEach(function(text, i){
+      var b = el('<button class="opt" type="button" aria-pressed="' + (answers[step] === i) + '"><span class="k">' + 'ABCD'[i] + '</span><span>' + esc(text) + '</span></button>');
+      b.onclick = function(){
+        answers[step] = i;
+        opts.querySelectorAll('.opt').forEach(function(x){ x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        setTimeout(next, 220);
+      };
+      opts.appendChild(b);
+    });
+    s.appendChild(opts);
+    var nav = el('<div class="nav"><button class="btn ghost" id="back" type="button">Back</button><button class="btn" id="fwd" type="button">Next</button></div>');
+    s.appendChild(nav);
+    app.appendChild(s);
+    document.getElementById('back').onclick = function(){ if(step === 0){ step = -1; intro(); } else { step--; question(); } };
+    var fwd = document.getElementById('fwd');
+    fwd.disabled = answers[step] === null;
+    fwd.onclick = next;
+  }
+
+  function send(){
+    var s = scores(), band = BANDS.filter(function(b){ return s.total >= b.min; })[0];
+    var payload = {
+      name: lead.name, email: lead.email, company: lead.company || '\u2014',
+      interest: 'Exit readiness scorecard',
+      score: s.total + ' / 100 (' + band.name + ')',
+      _subject: '[Scorecard ' + s.total + '] ' + lead.name + (lead.company ? ' (' + lead.company + ')' : ''),
+      _replyto: lead.email, _cc: 'info@meritasep.com', _template: 'table', _captcha: 'false'
+    };
+    CATS.forEach(function(c){ payload[c.name] = s.cats[c.id]; });
+    Q.forEach(function(q, i){ payload['Q' + (i + 1) + ' ' + q.q] = q.o[answers[i]]; });
+    try {
+      fetch('https://formsubmit.co/ajax/1cab37afc5edbd5dcca20583726aa5bf', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(function(){});
+    } catch(e){}
+  }
+
+  function next(){
+    if(answers[step] === null) return;
+    if(step < Q.length - 1){ step++; question(); } else { results(); }
+  }
+
+  function results(){
+    var s = scores();
+    var band = BANDS.filter(function(b){ return s.total >= b.min; })[0];
+    var sorted = CATS.slice().sort(function(a, b){ return s.cats[a.id] - s.cats[b.id]; });
+    app.innerHTML = '';
+    var sec = el('<section class="stack"></section>');
+    sec.appendChild(el(
+      '<div><span class="eyebrow">Your exit readiness score</span>' +
+      '<div class="score" style="margin-top:12px;"><div class="big">' + s.total + '<small> / 100</small></div>' +
+      '<span class="band" style="color:' + band.tone + ';">' + band.name + '</span></div>' +
+      '<p class="lede">' + band.text + '</p></div>'));
+
+    var cats = '<div class="cats">' + sorted.map(function(c){
+      var v = s.cats[c.id], tone = v >= 70 ? 'var(--good)' : v >= 45 ? 'var(--warn)' : 'var(--bad)';
+      return '<div class="cat"><div class="cat-head"><span>' + esc(c.name) + '</span><span>' + v + '</span></div>' +
+        '<div class="meter"><i style="width:' + Math.max(v, 3) + '%;background:' + tone + ';"></i></div>' +
+        '<p>' + esc(v >= 70 ? c.high : c.low) + '</p></div>';
+    }).join('') + '</div>';
+
+    if(!unlocked){
+      var box = el('<div class="stack"></div>');
+      box.appendChild(el('<div><h2>See where you’re losing value</h2><p class="lede" style="margin-top:8px;">Your breakdown by area, weakest first, with what a buyer would conclude from each.</p></div>'));
+      var locked = el('<div class="locked">' + cats + '</div>');
+      box.appendChild(locked);
+      var gate = el(
+        '<form class="gate" id="gate" novalidate>' +
+          '<div class="row"><div><label for="g-name">Name</label><input id="g-name" autocomplete="name"></div>' +
+          '<div><label for="g-email">Work email</label><input id="g-email" type="email" autocomplete="email"></div></div>' +
+          '<div><label for="g-co">Company</label><input id="g-co" autocomplete="organization"></div>' +
+          '<p class="err" id="g-err" hidden></p>' +
+          '<div><button class="btn gold" type="submit">Show my breakdown</button></div>' +
+          '<p class="fine">A Meritas partner may follow up once. We never share your details.</p>' +
+        '</form>');
+      box.appendChild(gate);
+      sec.appendChild(box);
+      app.appendChild(sec);
+      gate.onsubmit = function(e){
+        e.preventDefault();
+        var n = document.getElementById('g-name').value.trim(), m = document.getElementById('g-email').value.trim(), co = document.getElementById('g-co').value.trim();
+        var err = document.getElementById('g-err');
+        if(!n || !m){ err.textContent = 'Add your name and email to see the breakdown.'; err.hidden = false; return; }
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){ err.textContent = 'That email address looks incomplete.'; err.hidden = false; return; }
+        lead = { name:n, email:m, company:co };
+        unlocked = true;
+        send();
+        results();
+      };
+      return;
+    }
+
+    sec.appendChild(el('<div class="stack"><h2>Where you’re losing value</h2>' + cats + '</div>'));
+    var weakest = sorted[0];
+    sec.appendChild(el(
+      '<div class="cta"><span class="eyebrow">Next step</span>' +
+      '<h2>Talk it through with a Meritas partner</h2>' +
+      '<p class="lede" style="margin-top:0;">Thanks' + (lead.name ? ', ' + esc(lead.name.split(' ')[0]) : '') + '. Your biggest gap is ' + esc(weakest.name.toLowerCase()) + '. In a free 30-minute call we’ll go through your answers and tell you plainly what we’d fix first. If it makes sense, our three-week Value Diagnostic turns this into a full 12-month roadmap.</p>' +
+      '<div class="nav"><a class="btn gold" href="/#contact">Book a 30-minute call</a><button class="btn ghost" id="again" type="button">Retake the scorecard</button></div>' +
+      '<p class="note">Or email <a href="mailto:info@meritasep.com" style="color:inherit;">info@meritasep.com</a></p></div>'));
+    app.appendChild(sec);
+    document.getElementById('again').onclick = function(){ answers.fill(null); unlocked = false; step = -1; intro(); };
+  }
+
+  intro();
+})();
+</script>
+</body>
+</html>
