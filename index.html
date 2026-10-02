@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meritas Equity Partners | Private Equity &amp; Real Estate, Buffalo NY</title>
-<meta name="description" content="Meritas Equity Partners is a private equity independent sponsor investing in real estate and lower middle-market companies across Western New York.">
+<meta name="description" content="Meritas Equity Partners is a Buffalo, NY private equity independent sponsor investing in real estate and lower middle-market companies, with an advisory practice offering fractional CRO, COO and CFO leadership, growth strategy and exit readiness.">
 <link rel="canonical" href="https://meritasep.com/">
 <meta name="theme-color" content="#14120f">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -485,11 +485,17 @@
   .contact-links a:hover{ gap:0.85rem; color:var(--gold-bright); }
   form.contact-form{ display:grid; gap:1.1rem; }
   form.contact-form label{ display:block; font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:#a49d89; margin-bottom:0.4rem; }
-  form.contact-form input, form.contact-form textarea{
+  form.contact-form input, form.contact-form textarea, form.contact-form select{
     width:100%; background:#211e18; border:1px solid #4a4638; color:var(--paper);
     padding:0.75rem 0.9rem; font-family:var(--sans); font-size:0.95rem; transition:border-color 0.25s var(--ease), background 0.25s var(--ease);
   }
-  form.contact-form input:focus, form.contact-form textarea:focus{ outline:none; border-color:var(--gold-bright); background:#26221a; }
+  form.contact-form select{ appearance:none; -webkit-appearance:none; border-radius:0; cursor:pointer;
+    background-image:linear-gradient(45deg, transparent 50%, #a49d89 50%), linear-gradient(135deg, #a49d89 50%, transparent 50%);
+    background-position:calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size:5px 5px; background-repeat:no-repeat; padding-right:2.4rem; }
+  form.contact-form .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
+  @media (max-width:600px){ form.contact-form .form-row{ grid-template-columns:1fr; } }
+  form.contact-form .opt{ text-transform:none; letter-spacing:0; color:#6b6559; }
+  form.contact-form input:focus, form.contact-form textarea:focus, form.contact-form select:focus{ outline:none; border-color:var(--gold-bright); background:#26221a; }
   form.contact-form textarea{ min-height:110px; resize:vertical; }
 
   footer.site{ background:var(--ink); color:#a49d89; padding:2.5rem 0; font-size:0.85rem; }
@@ -853,6 +859,28 @@
           <input type="text" id="_honey" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
           <div><label for="name">Name</label><input id="name" name="name" type="text" required></div>
           <div><label for="email">Email</label><input id="email" name="email" type="email" required></div>
+          <div class="form-row">
+            <div><label for="interest">I'm interested in</label>
+              <select id="interest" name="interest" required>
+                <option value="" disabled selected>Choose one</option>
+                <option value="Advisory / fractional executive">Advisory or a fractional executive</option>
+                <option value="Selling or recapitalizing">Selling or recapitalizing my business</option>
+                <option value="Raising capital">Raising capital</option>
+                <option value="Real estate">Real estate</option>
+                <option value="Something else">Something else</option>
+              </select>
+            </div>
+            <div><label for="revenue">Annual revenue <span class="opt">(optional)</span></label>
+              <select id="revenue" name="revenue">
+                <option value="" selected>Prefer not to say</option>
+                <option>Under $5M</option>
+                <option>$5M–$20M</option>
+                <option>$20M–$75M</option>
+                <option>$75M+</option>
+              </select>
+            </div>
+          </div>
+          <div><label for="company">Company <span class="opt">(optional)</span></label><input id="company" name="company" type="text" autocomplete="organization"></div>
           <div><label for="message">Message</label><textarea id="message" name="message" required></textarea></div>
           <button type="submit" class="btn on-dark" style="justify-self:start; margin-top:0.5rem;">Send message</button>
         </form>
@@ -1017,7 +1045,9 @@
 
     function mailtoFallback(name, email, message){
       var subject = 'Website enquiry — ' + name;
-      var body = message + '\n\n—\n' + name + '\n' + email + '\nSent from meritasep.com';
+      var ctx = [document.getElementById('interest'), document.getElementById('company'), document.getElementById('revenue')]
+        .map(function(el){ return el && el.value ? el.value : ''; }).filter(Boolean).join(' · ');
+      var body = message + '\n\n—\n' + name + '\n' + email + (ctx ? '\n' + ctx : '') + '\nSent from meritasep.com';
       window.location.href = 'mailto:info@meritasep.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     }
 
@@ -1042,16 +1072,27 @@
       f.parentNode.replaceChild(wrap, f);
     }
 
+    document.querySelectorAll('a[data-interest]').forEach(function(a){
+      a.addEventListener('click', function(){
+        var sel = f.querySelector('#interest');
+        if(sel) sel.value = a.getAttribute('data-interest');
+      });
+    });
+
     f.addEventListener('submit', function(e){
       e.preventDefault();
       var name = (f.querySelector('#name')||{}).value || '';
       var email = (f.querySelector('#email')||{}).value || '';
       var message = (f.querySelector('#message')||{}).value || '';
+      var interest = (f.querySelector('#interest')||{}).value || '';
+      var revenue = (f.querySelector('#revenue')||{}).value || '';
+      var company = ((f.querySelector('#company')||{}).value || '').trim();
       var trap = f.querySelector('#_honey');
       name = name.trim(); email = email.trim(); message = message.trim();
 
       if(trap && trap.value) return;
-      if(!name || !email || !message){ say('Please fill in all three fields', true); return; }
+      if(!name || !email || !message){ say('Please add your name, email and a message', true); return; }
+      if(!interest){ say('Please tell us what you\'re interested in', true); return; }
       if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ say('That email address looks incomplete', true); return; }
 
       if(btn){ btn.disabled = true; }
@@ -1060,8 +1101,11 @@
       var payload = {
         name: name,
         email: email,
+        interest: interest,
+        company: company || '—',
+        revenue: revenue || '—',
         message: message,
-        _subject: 'meritasep.com enquiry — ' + name,
+        _subject: '[' + interest + '] meritasep.com enquiry — ' + name + (company ? ' (' + company + ')' : ''),
         _replyto: email,
         _cc: 'info@meritasep.com',
         _template: 'table',
