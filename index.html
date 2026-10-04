@@ -1055,6 +1055,22 @@
 
 
 <script>
+  // Send a copy of each submission to the Meritas HubSpot (non-blocking; FormSubmit email still goes out)
+  function hsSubmit(formId, f){
+    try {
+      var m = document.cookie.match(/(?:^|; )hubspotutk=([^;]+)/);
+      var parts = String(f.name || '').trim().split(/\s+/);
+      f.firstname = parts.shift() || ''; f.lastname = parts.join(' '); delete f.name;
+      var fields = Object.keys(f).filter(function(k){ return f[k] && f[k] !== '\u2014' && f[k] !== '—'; })
+        .map(function(k){ return { objectTypeId: '0-1', name: k, value: String(f[k]) }; });
+      var ctx = { pageUri: location.href, pageName: document.title }; if (m) ctx.hutk = m[1];
+      fetch('https://api.hsforms.com/submissions/v3/integration/submit/242270655/' + formId, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: fields, context: ctx })
+      }).catch(function(){});
+    } catch(e){}
+  }
+
   (function(){
     var f = document.getElementById('contactForm');
     if(!f) return;
@@ -1144,6 +1160,8 @@
         mailtoFallback(name, email, message);
       }, 12000);
 
+      hsSubmit('8d65d6e3-1643-4938-8ce2-f23772ebc671', { name: name, email: email, company: company, website_interest: interest, website_revenue_range: revenue, message: message, lead_source: 'Website' });
+
       fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -1163,5 +1181,7 @@
     });
   })();
 </script>
+<!-- HubSpot tracking (Meritas portal 242270655) -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-na2.hs-scripts.com/242270655.js"></script>
 </body>
 </html>

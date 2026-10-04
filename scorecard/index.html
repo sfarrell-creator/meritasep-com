@@ -112,6 +112,22 @@
 </div>
 
 <script>
+  // Send a copy of each submission to the Meritas HubSpot (non-blocking; FormSubmit email still goes out)
+  function hsSubmit(formId, f){
+    try {
+      var m = document.cookie.match(/(?:^|; )hubspotutk=([^;]+)/);
+      var parts = String(f.name || '').trim().split(/\s+/);
+      f.firstname = parts.shift() || ''; f.lastname = parts.join(' '); delete f.name;
+      var fields = Object.keys(f).filter(function(k){ return f[k] && f[k] !== '\u2014' && f[k] !== '—'; })
+        .map(function(k){ return { objectTypeId: '0-1', name: k, value: String(f[k]) }; });
+      var ctx = { pageUri: location.href, pageName: document.title }; if (m) ctx.hutk = m[1];
+      fetch('https://api.hsforms.com/submissions/v3/integration/submit/242270655/' + formId, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: fields, context: ctx })
+      }).catch(function(){});
+    } catch(e){}
+  }
+
 (function(){
   var CATS = [
     { id:'cash', name:'Cash and financials', low:'A buyer will price in risk until the numbers close fast and forecast reliably. Monthly closes, a 13-week cash view and CPA-reviewed statements are usually the quickest value lift.', high:'Your financial reporting would hold up well in diligence.' },
@@ -206,6 +222,7 @@
     };
     CATS.forEach(function(c){ payload[c.name] = s.cats[c.id]; });
     Q.forEach(function(q, i){ payload['Q' + (i + 1) + ' ' + q.q] = q.o[answers[i]]; });
+    hsSubmit('7d98ca84-84a3-403b-aba1-7919d439c597', { name: lead.name, email: lead.email, company: lead.company, scorecard_score: s.total + ' / 100 (' + band.name + ')' + CATS.map(function(c){ return ' | ' + c.name + ': ' + s.cats[c.id]; }).join(''), lead_source: 'Website Scorecard' });
     try {
       fetch('https://formsubmit.co/ajax/1cab37afc5edbd5dcca20583726aa5bf', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -284,5 +301,7 @@
   intro();
 })();
 </script>
+<!-- HubSpot tracking (Meritas portal 242270655) -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-na2.hs-scripts.com/242270655.js"></script>
 </body>
 </html>
