@@ -17,7 +17,7 @@
 
 <header class="topbar">
   <div class="wrap">
-    <a class="home" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Meritas Equity Partners</a>
+    <a class="brandmark" href="/"><img src="../assets/meritas-logo.png" alt="Meritas Equity Partners" width="116" height="22"><span class="room">Investor Room · Admin</span></a>
     <div class="who" id="who" hidden>
       <span class="email" id="whoEmail"></span>
       <a href="../" class="btn ghost sm">View room</a>
@@ -26,7 +26,7 @@
   </div>
 </header>
 
-<main class="wrap section" id="app"><p class="fine">Loading…</p></main>
+<main id="app"><div class="wrap section"><p class="fine">Loading…</p></div></main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -38,30 +38,30 @@
   var app = $('#app');
   var S = { tab:'investors', decks:[], investors:[], access:[] };
 
-  if (!R.configured) { app.innerHTML = '<p class="err">Not connected yet. Add the Supabase URL and anon key to investors/config.js.</p>'; return; }
+  if (!R.configured) { app.innerHTML = '<p class="err wrap section">Not connected yet. Add the Supabase URL and anon key to investors/config.js.</p>'; return; }
   $('#signOut').addEventListener('click', R.signOut);
 
   R.init(async function(session){
     $('#who').hidden = !session;
-    if (!session) { app.className = 'wrap section narrow'; R.renderSignIn(app, { eyebrow:'Investor Room · Admin', title:'Admin sign in', lede:'Meritas partners only. We’ll email you a one-time code.' }); return; }
+    if (!session) { R.renderSignIn(app, { base:'../', eyebrow:'Investor Room · Admin', titleHtml:'Run the <em>room</em>.', lede:'Add investors, share decks, and see who’s reading what. Meritas partners only.' }); return; }
     $('#whoEmail').textContent = R.email();
     var a = await sb.rpc('is_admin');
     if (!a.data) {
-      app.className = 'wrap section narrow';
-      app.innerHTML = '<div class="stack"><span class="eyebrow">Admin</span><h1>Not authorized</h1><p class="lede">' + esc(R.email()) + ' isn’t a Room admin.</p></div>';
+      app.innerHTML = '<div class="wrap section narrow stack"><span class="eyebrow">Admin</span><h1>Not authorized</h1><p class="lede">' + esc(R.email()) + ' isn’t a Room admin.</p></div>';
       return;
     }
-    app.className = 'wrap section';
     shell();
     await reload();
   });
 
   function shell(){
     app.innerHTML =
-      '<div class="stack" style="gap:8px;margin-bottom:24px"><span class="eyebrow">Investor Room · Admin</span><h1>Manage the room</h1></div>' +
-      '<div class="tabs" role="tablist">' +
-        tabBtn('investors','Investors') + tabBtn('decks','Decks') + tabBtn('activity','Activity') +
-      '</div><div id="panel"></div>';
+      '<section class="dark hero-band admin"><div class="wrap">' +
+        '<div class="stack" style="gap:16px"><div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>' +
+        '<span class="eyebrow">Investor Room · Admin</span><h1>Manage the <em>room</em>.</h1></div>' +
+        '<div class="tabs" role="tablist">' + tabBtn('investors','Investors') + tabBtn('decks','Decks') + tabBtn('activity','Activity') + '</div>' +
+      '</div></section>' +
+      '<section class="wrap section" id="panel"></section>';
     app.querySelectorAll('.tab').forEach(function(b){ b.addEventListener('click', function(){ S.tab = b.dataset.tab; syncTabs(); render(); }); });
     syncTabs();
   }
@@ -73,8 +73,10 @@
       sb.from('decks').select('*').order('created_at', { ascending:false }),
       sb.from('investors').select('*').order('created_at', { ascending:false }),
       sb.from('deck_access').select('*'),
-      sb.from('deck_activity').select('email, last_viewed, total_seconds, deck_id')
+      sb.from('deck_activity').select('email, last_viewed, total_seconds, deck_id'),
+      sb.from('admins').select('email')
     ]);
+    S.admins = (r[4].data || []).map(function(a){ return a.email; });
     S.decks = r[0].data || []; S.investors = r[1].data || []; S.access = r[2].data || []; S.activity = r[3].data || [];
     render();
   }
@@ -90,10 +92,10 @@
       var last = acts.reduce(function(m, a){ return !m || a.last_viewed > m ? a.last_viewed : m; }, null);
       var secs = acts.reduce(function(s, a){ return s + (a.total_seconds || 0); }, 0);
       return '<tr data-email="' + esc(i.email) + '">' +
-        '<td><strong>' + esc(i.name || '—') + '</strong><div class="fine">' + esc(i.email) + (i.firm ? ' · ' + esc(i.firm) : '') + '</div></td>' +
+        '<td><strong>' + esc(i.name || '—') + '</strong>' + (S.admins.indexOf(i.email) > -1 ? ' <span class="pill off" title="Admins see every deck, so this login won’t show the investor view">Admin</span>' : '') + '<div class="fine">' + esc(i.email) + (i.firm ? ' · ' + esc(i.firm) : '') + '</div></td>' +
         live.map(function(d){ return '<td class="c"><input type="checkbox" data-grant="' + d.id + '" ' + (has(d.id, i.email) ? 'checked' : '') + ' aria-label="' + esc(d.title) + ' access for ' + esc(i.email) + '"></td>'; }).join('') +
         '<td>' + (last ? R.fmtWhen(last) + '<div class="fine">' + R.fmtDur(secs) + ' total</div>' : '<span class="fine">Never</span>') + '</td>' +
-        '<td><button class="btn ghost sm" data-toggle>' + (i.active ? '<span class="pill on">Active</span>' : '<span class="pill off">Revoked</span>') + '</button></td>' +
+        '<td><button class="toggle" data-toggle title="Click to change">' + (i.active ? '<span class="pill on">Active</span>' : '<span class="pill off">Revoked</span>') + '</button></td>' +
         '<td><button class="btn ghost sm" data-invite>Copy invite</button></td>' +
       '</tr>';
     }).join('');
@@ -184,7 +186,7 @@
             return '<tr data-id="' + d.id + '"><td><strong>' + esc(d.title) + '</strong>' + (d.subtitle ? '<div class="fine">' + esc(d.subtitle) + '</div>' : '') + '</td>' +
               '<td class="num">' + (d.page_count || '<span class="err">upload incomplete</span>') + '</td><td class="num">' + n + '</td>' +
               '<td>' + R.fmtWhen(d.created_at) + '</td>' +
-              '<td><button class="btn ghost sm" data-toggle>' + (d.active ? '<span class="pill on">Live</span>' : '<span class="pill off">Hidden</span>') + '</button></td>' +
+              '<td><button class="toggle" data-toggle title="Click to change">' + (d.active ? '<span class="pill on">Live</span>' : '<span class="pill off">Hidden</span>') + '</button></td>' +
               '<td style="white-space:nowrap"><a class="btn ghost sm" href="../#/deck/' + d.id + '/1">Preview</a> <button class="btn link" data-del>Delete</button></td></tr>';
           }).join('') + '</tbody></table></div>' : '') +
       '</div>';
@@ -285,7 +287,7 @@
 
     var html =
       '<div class="grid2">' +
-        stat('Viewers', who.length + ' <span class="fine">of ' + granted.length + ' invited</span>') +
+        stat('Viewers', who.length + ' <small>of ' + granted.length + ' invited</small>') +
         stat('Opens', totalOpens) + stat('Time in deck', R.fmtDur(totalSecs)) +
       '</div>';
 
@@ -324,7 +326,7 @@
       });
     });
   }
-  function stat(label, val){ return '<div class="card"><div class="eyebrow">' + label + '</div><div style="font-family:var(--serif);font-size:2rem;font-weight:600;margin-top:6px">' + val + '</div></div>'; }
+  function stat(label, val){ return '<div class="card stat"><div class="eyebrow">' + label + '</div><div class="val">' + val + '</div></div>'; }
   function device(ua){
     ua = ua || '';
     var os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac OS X/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';

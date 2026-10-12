@@ -61,24 +61,39 @@
   /* Renders the shared sign-in card into `el`. */
   Room.renderSignIn = function(el, opts){
     opts = opts || {};
+    var base = opts.base || '';
     el.innerHTML =
-      '<div class="stack">' +
-        '<div><span class="eyebrow">' + Room.esc(opts.eyebrow || 'Investor Room') + '</span>' +
-        '<h1>' + Room.esc(opts.title || 'Sign in to view materials') + '</h1>' +
-        '<p class="lede">' + Room.esc(opts.lede || 'Enter the email address Meritas invited. We’ll send you a one-time sign-in code. No password needed.') + '</p></div>' +
-        '<form class="card stack" id="emailForm" novalidate>' +
-          '<div><label for="em">Email</label><input type="email" id="em" autocomplete="email" required placeholder="you@company.com"></div>' +
-          '<button class="btn gold" type="submit">Email me a code</button>' +
-          '<p class="err" id="emErr" hidden></p>' +
-        '</form>' +
-        '<form class="card stack" id="codeForm" hidden novalidate>' +
-          '<p>Check <strong id="sentTo"></strong>. Click the link in the email, or enter the code here.</p>' +
-          '<div><label for="cd">Sign-in code</label><input type="text" id="cd" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="••••••"></div>' +
-          '<button class="btn" type="submit">Sign in</button>' +
-          '<p class="err" id="cdErr" hidden></p>' +
-          '<button class="btn link" type="button" id="restart">Use a different email</button>' +
-        '</form>' +
-        '<p class="fine">Materials here are confidential and for invited investors only. Questions? <a href="mailto:' + Room.esc(cfg.CONTACT_EMAIL) + '">' + Room.esc(cfg.CONTACT_EMAIL) + '</a></p>' +
+      '<div class="auth">' +
+        '<section class="auth-art dark">' +
+          '<div class="photo" style="background-image:url(' + base + 'assets/waterford.jpg)"></div>' +
+          '<div class="stack" style="gap:20px">' +
+            '<div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>' +
+            '<span class="eyebrow">' + Room.esc(opts.eyebrow || 'Investor Room') + '</span>' +
+            '<h1>' + (opts.titleHtml || 'Private access to <em>Meritas</em> opportunities.') + '</h1>' +
+            '<p class="lede">' + Room.esc(opts.lede || 'Offering materials for invited investors in Meritas Equity Partners real estate and private equity investments across Western New York.') + '</p>' +
+          '</div>' +
+          '<ul class="points">' +
+            '<li>Sign in with a one-time code. No password to remember.</li>' +
+            '<li>Materials open here, view-only, and are watermarked to you.</li>' +
+            '<li>Your access is personal and can’t be shared.</li>' +
+          '</ul>' +
+        '</section>' +
+        '<section class="auth-form"><div class="stack">' +
+          '<form class="stack" id="emailForm" novalidate style="gap:20px">' +
+            '<div class="stack" style="gap:8px"><h2>Sign in</h2><p class="fine">Use the email address Meritas invited.</p></div>' +
+            '<div><label for="em">Email</label><input type="email" id="em" autocomplete="email" required placeholder="you@company.com"></div>' +
+            '<button class="btn gold block" type="submit">Email me a sign-in code →</button>' +
+            '<p class="err" id="emErr" hidden></p>' +
+          '</form>' +
+          '<form class="stack" id="codeForm" hidden novalidate style="gap:20px">' +
+            '<div class="stack" style="gap:8px"><h2>Check your email</h2><p class="fine">We sent a sign-in link to <strong id="sentTo" style="color:var(--ink)"></strong>. Click it, or enter the code from the email.</p></div>' +
+            '<div><label for="cd">Sign-in code</label><input type="text" id="cd" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="••••••"></div>' +
+            '<button class="btn block" type="submit">Sign in</button>' +
+            '<p class="err" id="cdErr" hidden></p>' +
+            '<button class="btn link" type="button" id="restart" style="justify-self:start">Use a different email</button>' +
+          '</form>' +
+          '<p class="fine" style="border-top:1px solid var(--hairline);padding-top:18px">Confidential. For invited investors only. Questions? <a href="mailto:' + Room.esc(cfg.CONTACT_EMAIL) + '">' + Room.esc(cfg.CONTACT_EMAIL) + '</a></p>' +
+        '</div></section>' +
       '</div>';
     var email = '';
     var emailForm = Room.$('#emailForm', el), codeForm = Room.$('#codeForm', el);

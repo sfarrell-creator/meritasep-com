@@ -19,7 +19,7 @@
 
 <header class="topbar">
   <div class="wrap">
-    <a class="home" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Meritas Equity Partners</a>
+    <a class="brandmark" href="/"><img src="assets/meritas-logo.png" alt="Meritas Equity Partners" width="116" height="22"><span class="room">Investor Room</span></a>
     <div class="who" id="who" hidden>
       <span class="email" id="whoEmail"></span>
       <a href="admin/" id="adminLink" class="btn ghost sm" hidden>Admin</a>
@@ -28,14 +28,14 @@
   </div>
 </header>
 
-<main class="wrap section" id="app"><p class="fine">Loading…</p></main>
+<main id="app"><div class="wrap section"><p class="fine">Loading…</p></div></main>
 
 <!-- Deck viewer -->
 <div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Deck viewer">
   <div class="vbar">
-    <button class="vbtn" id="vClose" type="button" aria-label="Back to materials">← <span class="lbl">All materials</span></button>
+    <div class="left"><button class="vbtn" id="vClose" type="button" aria-label="Back to materials">← <span class="lbl">All materials</span></button></div>
     <div class="title" id="vTitle"></div>
-    <button class="vbtn" id="vFull" type="button" aria-label="Full screen">⤢ <span class="lbl">Full screen</span></button>
+    <div class="right"><button class="vbtn" id="vFull" type="button" aria-label="Full screen">⤢ <span class="lbl">Full screen</span></button></div>
   </div>
   <div class="stage" id="stage">
     <canvas id="vCanvas" aria-label="Deck page"></canvas>
@@ -44,11 +44,14 @@
     <button class="hit next" id="hitNext" type="button" aria-label="Next page"></button>
     <div class="blocker" id="vBlock" hidden></div>
   </div>
+  <div class="vprog" aria-hidden="true"><i id="vProg"></i></div>
   <div class="vfoot">
-    <button class="vbtn" id="vPrev" type="button">← Prev</button>
-    <span class="count" id="vCount">1 / 1</span>
-    <button class="vbtn" id="vNext" type="button">Next →</button>
-    <div class="conf">Confidential · For the named recipient only · Do not distribute</div>
+    <div class="nav">
+      <button class="vbtn" id="vPrev" type="button">← Prev</button>
+      <span class="count" id="vCount">1 / 1</span>
+      <button class="vbtn" id="vNext" type="button">Next →</button>
+    </div>
+    <div class="conf">Confidential · Meritas Equity Partners · For the named recipient only</div>
   </div>
 </div>
 
@@ -62,7 +65,7 @@
   var decks = [], isAdmin = false;
 
   if (!R.configured) {
-    app.innerHTML = '<div class="narrow stack"><span class="eyebrow">Investor Room</span><h1>Coming soon</h1>' +
+    app.innerHTML = '<div class="wrap section narrow stack"><span class="eyebrow">Investor Room</span><h1>Coming soon</h1>' +
       '<p class="lede">The investor room isn’t open yet. For materials, email <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p></div>';
     return;
   }
@@ -71,14 +74,13 @@
 
   R.init(async function(session){
     $('#who').hidden = !session;
-    if (!session) { app.className = 'wrap section narrow'; R.renderSignIn(app); return; }
+    if (!session) { R.renderSignIn(app); return; }
     $('#whoEmail').textContent = R.email();
     await loadRoom();
   });
 
   async function loadRoom(){
-    app.className = 'wrap section';
-    app.innerHTML = '<p class="fine">Loading your materials…</p>';
+    app.innerHTML = '<div class="wrap section"><p class="fine">Loading your materials…</p></div>';
     var a = await R.sb.rpc('is_admin'); isAdmin = !!a.data;
     $('#adminLink').hidden = !isAdmin;
     var inv = await R.sb.from('investors').select('name, active').eq('email', R.email()).maybeSingle();
@@ -86,8 +88,7 @@
     decks = d.data || [];
 
     if (!isAdmin && (!inv.data || !inv.data.active)) {
-      app.className = 'wrap section narrow';
-      app.innerHTML = '<div class="stack"><span class="eyebrow">Investor Room</span><h1>No access yet</h1>' +
+      app.innerHTML = '<div class="wrap section narrow stack"><span class="eyebrow">Investor Room</span><h1>No access yet</h1>' +
         '<p class="lede"><strong>' + esc(R.email()) + '</strong> isn’t on the invite list. If Meritas sent you here, reply to their email or contact <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p>' +
         '<p class="fine">Signed in with a different email than the one you were invited with? <button class="btn link" type="button" id="so2">Sign out and try again</button></p></div>';
       $('#so2').addEventListener('click', R.signOut);
@@ -96,20 +97,26 @@
 
     var first = inv.data && inv.data.name ? inv.data.name.split(' ')[0] : '';
     app.innerHTML =
-      '<div class="stack">' +
-        '<div><span class="eyebrow">Investor Room</span><h1>' + (first ? 'Welcome, ' + esc(first) + '.' : 'Welcome.') + '</h1>' +
-        '<p class="lede">Materials shared with you by Meritas Equity Partners. They open here in the browser and are watermarked to you.</p></div>' +
+      '<section class="dark hero-band"><div class="wrap stack">' +
+        '<div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>' +
+        '<span class="eyebrow">Investor Room' + (isAdmin ? ' · Admin view' : '') + '</span>' +
+        '<h1>' + (first ? 'Welcome, <em>' + esc(first) + '</em>.' : 'Welcome to the <em>room</em>.') + '</h1>' +
+        '<p class="lede">Materials shared with you by Meritas Equity Partners. Everything opens here in your browser, view-only, and is watermarked to you.</p>' +
+      '</div></section>' +
+      '<section class="wrap section stack">' +
+        '<div class="stack" style="gap:6px"><span class="eyebrow">Your materials</span><h2>' + (decks.length === 1 ? '1 document' : decks.length + ' documents') + ' shared with you</h2></div>' +
         (decks.length ? '<div class="decks" id="deckList"></div>' :
-          '<div class="card"><h3>Nothing here yet</h3><p class="fine" style="margin-top:6px">When Meritas shares materials with you, they’ll appear here.</p></div>') +
-      '</div>';
+          '<div class="empty"><h3>Nothing here yet</h3><p class="fine">When Meritas shares materials with you, they’ll appear here.</p></div>') +
+        '<p class="fine">Questions about an opportunity? Email <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p>' +
+      '</section>';
 
     var list = $('#deckList');
     decks.forEach(function(k){
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'deck';
       b.innerHTML = '<div class="cover"><canvas></canvas></div><div class="meta"><h3>' + esc(k.title) + '</h3>' +
-        (k.subtitle ? '<p class="fine" style="text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:.92rem">' + esc(k.subtitle) + '</p>' : '') +
-        '<p class="fine">' + k.page_count + ' pages</p></div>';
+        (k.subtitle ? '<p class="sub">' + esc(k.subtitle) + '</p>' : '') +
+        '<div class="foot"><span>' + k.page_count + ' pages · ' + new Date(k.created_at).toLocaleDateString(undefined, { month:'short', year:'numeric' }) + '</span><span class="open">Open →</span></div></div>';
       b.addEventListener('click', function(){ location.hash = '#/deck/' + k.id + '/1'; });
       list && list.appendChild(b);
       R.loadPage(k.id, 1).then(function(bmp){ R.draw(b.querySelector('canvas'), bmp, R.watermarkText(), { footer:false }); }).catch(function(){});
@@ -168,6 +175,7 @@
   async function show(p){
     var k = V.deck, tok = ++V.token;
     $('#vCount').textContent = p + ' / ' + k.page_count;
+    $('#vProg').style.width = (p / k.page_count * 100) + '%';
     $('#vPrev').disabled = $('#hitPrev').disabled = p <= 1;
     $('#vNext').disabled = $('#hitNext').disabled = p >= k.page_count;
     $('#vLoading').hidden = false;
