@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investor Room | Meritas Equity Partners</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#14120f">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="room.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="home" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Meritas Equity Partners</a>
+    <div class="who" id="who" hidden>
+      <span class="email" id="whoEmail"></span>
+      <a href="admin/" id="adminLink" class="btn ghost sm" hidden>Admin</a>
+      <button class="btn link" id="signOut" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap section" id="app"><p class="fine">Loading…</p></main>
+
+<!-- Deck viewer -->
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Deck viewer">
+  <div class="vbar">
+    <button class="vbtn" id="vClose" type="button" aria-label="Back to materials">← <span class="lbl">All materials</span></button>
+    <div class="title" id="vTitle"></div>
+    <button class="vbtn" id="vFull" type="button" aria-label="Full screen">⤢ <span class="lbl">Full screen</span></button>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="vCanvas" aria-label="Deck page"></canvas>
+    <div class="loading" id="vLoading">Loading page…</div>
+    <button class="hit prev" id="hitPrev" type="button" aria-label="Previous page"></button>
+    <button class="hit next" id="hitNext" type="button" aria-label="Next page"></button>
+    <div class="blocker" id="vBlock" hidden></div>
+  </div>
+  <div class="vfoot">
+    <button class="vbtn" id="vPrev" type="button">← Prev</button>
+    <span class="count" id="vCount">1 / 1</span>
+    <button class="vbtn" id="vNext" type="button">Next →</button>
+    <div class="conf">Confidential · For the named recipient only · Do not distribute</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="room.js"></script>
+<script>
+(function(){
+  var R = window.Room, $ = R.$, esc = R.esc;
+  var app = $('#app');
+  var decks = [], isAdmin = false;
+
+  if (!R.configured) {
+    app.innerHTML = '<div class="narrow stack"><span class="eyebrow">Investor Room</span><h1>Coming soon</h1>' +
+      '<p class="lede">The investor room isn’t open yet. For materials, email <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p></div>';
+    return;
+  }
+
+  $('#signOut').addEventListener('click', R.signOut);
+
+  R.init(async function(session){
+    $('#who').hidden = !session;
+    if (!session) { app.className = 'wrap section narrow'; R.renderSignIn(app); return; }
+    $('#whoEmail').textContent = R.email();
+    await loadRoom();
+  });
+
+  async function loadRoom(){
+    app.className = 'wrap section';
+    app.innerHTML = '<p class="fine">Loading your materials…</p>';
+    var a = await R.sb.rpc('is_admin'); isAdmin = !!a.data;
+    $('#adminLink').hidden = !isAdmin;
+    var inv = await R.sb.from('investors').select('name, active').eq('email', R.email()).maybeSingle();
+    var d = await R.sb.from('decks').select('id, title, subtitle, page_count, created_at').eq('active', true).gt('page_count', 0).order('created_at', { ascending: false });
+    decks = d.data || [];
+
+    if (!isAdmin && (!inv.data || !inv.data.active)) {
+      app.className = 'wrap section narrow';
+      app.innerHTML = '<div class="stack"><span class="eyebrow">Investor Room</span><h1>No access yet</h1>' +
+        '<p class="lede"><strong>' + esc(R.email()) + '</strong> isn’t on the invite list. If Meritas sent you here, reply to their email or contact <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p>' +
+        '<p class="fine">Signed in with a different email than the one you were invited with? <button class="btn link" type="button" id="so2">Sign out and try again</button></p></div>';
+      $('#so2').addEventListener('click', R.signOut);
+      return;
+    }
+
+    var first = inv.data && inv.data.name ? inv.data.name.split(' ')[0] : '';
+    app.innerHTML =
+      '<div class="stack">' +
+        '<div><span class="eyebrow">Investor Room</span><h1>' + (first ? 'Welcome, ' + esc(first) + '.' : 'Welcome.') + '</h1>' +
+        '<p class="lede">Materials shared with you by Meritas Equity Partners. They open here in the browser and are watermarked to you.</p></div>' +
+        (decks.length ? '<div class="decks" id="deckList"></div>' :
+          '<div class="card"><h3>Nothing here yet</h3><p class="fine" style="margin-top:6px">When Meritas shares materials with you, they’ll appear here.</p></div>') +
+      '</div>';
+
+    var list = $('#deckList');
+    decks.forEach(function(k){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'deck';
+      b.innerHTML = '<div class="cover"><canvas></canvas></div><div class="meta"><h3>' + esc(k.title) + '</h3>' +
+        (k.subtitle ? '<p class="fine" style="text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:.92rem">' + esc(k.subtitle) + '</p>' : '') +
+        '<p class="fine">' + k.page_count + ' pages</p></div>';
+      b.addEventListener('click', function(){ location.hash = '#/deck/' + k.id + '/1'; });
+      list && list.appendChild(b);
+      R.loadPage(k.id, 1).then(function(bmp){ R.draw(b.querySelector('canvas'), bmp, R.watermarkText(), { footer:false }); }).catch(function(){});
+    });
+    route();
+  }
+
+  /* ---------- Viewer + tracking ---------- */
+  var V = { deck:null, page:1, session:null, acc:0, lastAct:Date.now(), timer:null, flushEvery:10, sinceFlush:0, token:0 };
+  var viewer = $('#viewer'), canvas = $('#vCanvas');
+  R.lockDown(viewer);
+
+  window.addEventListener('hashchange', route);
+  function route(){
+    var m = location.hash.match(/^#\/deck\/([0-9a-f-]{36})\/?(\d+)?/i);
+    if (!m) { if (V.deck) closeViewer(); return; }
+    var k = decks.find(function(x){ return x.id === m[1]; });
+    if (!k) { if (decks.length) location.hash = ''; return; }
+    var p = Math.min(Math.max(parseInt(m[2] || '1', 10), 1), k.page_count);
+    if (!V.deck || V.deck.id !== k.id) openViewer(k, p); else goTo(p, true);
+  }
+
+  async function openViewer(k, p){
+    V.deck = k; V.page = p; V.acc = 0; V.sinceFlush = 0; V.session = null;
+    $('#vTitle').textContent = k.title;
+    $('#vBlock').hidden = true;
+    viewer.hidden = false; document.body.style.overflow = 'hidden';
+    $('#vClose').focus();
+    var s = await R.sb.rpc('start_view', { p_deck: k.id, p_ua: navigator.userAgent });
+    if (s.error) { block('Access to this deck has ended. Contact Meritas if you think this is a mistake.'); return; }
+    V.session = s.data;
+    show(p);
+    clearInterval(V.timer); V.timer = setInterval(tick, 1000);
+  }
+
+  function closeViewer(){
+    flush(true);
+    clearInterval(V.timer);
+    if (V.deck) R.forget(V.deck.id);
+    V.deck = null; V.session = null;
+    viewer.hidden = true; document.body.style.overflow = '';
+    if (document.fullscreenElement) document.exitFullscreen().catch(function(){});
+    if (location.hash) history.replaceState(null, '', location.pathname);
+  }
+
+  function goTo(p, fromHash){
+    if (!V.deck) return;
+    p = Math.min(Math.max(p, 1), V.deck.page_count);
+    if (p === V.page && fromHash) return;
+    flush(false);
+    V.page = p;
+    if (!fromHash) history.replaceState(null, '', '#/deck/' + V.deck.id + '/' + p);
+    show(p);
+  }
+
+  async function show(p){
+    var k = V.deck, tok = ++V.token;
+    $('#vCount').textContent = p + ' / ' + k.page_count;
+    $('#vPrev').disabled = $('#hitPrev').disabled = p <= 1;
+    $('#vNext').disabled = $('#hitNext').disabled = p >= k.page_count;
+    $('#vLoading').hidden = false;
+    try {
+      var bmp = await R.loadPage(k.id, p);
+      if (tok !== V.token) return;
+      R.draw(canvas, bmp, R.watermarkText());
+      $('#vLoading').hidden = true;
+      // Pre-load neighbours so paging feels instant
+      [p + 1, p - 1, p + 2].forEach(function(n){ if (n >= 1 && n <= k.page_count) R.loadPage(k.id, n).catch(function(){}); });
+    } catch (e) {
+      if (tok !== V.token) return;
+      block('This page couldn’t be loaded. Your access may have changed. Contact Meritas if you need help.');
+    }
+  }
+
+  function block(msg){ var b = $('#vBlock'); b.textContent = msg; b.hidden = false; $('#vLoading').hidden = true; clearInterval(V.timer); }
+
+  // Only count time while the tab is visible and the viewer has been touched in the last 2 minutes.
+  ['mousemove','keydown','touchstart','wheel','click'].forEach(function(t){ window.addEventListener(t, function(){ V.lastAct = Date.now(); }, { passive:true }); });
+  function tick(){
+    if (!V.session || document.hidden) return;
+    if (Date.now() - V.lastAct > 120000) return;
+    V.acc++; V.sinceFlush++;
+    if (V.sinceFlush >= V.flushEvery) flush(false);
+  }
+  function flush(final){
+    if (!V.session || !R.session) return;
+    var secs = V.acc; V.acc = 0; V.sinceFlush = 0;
+    if (secs <= 0 && !final && V._logged === V.page) return;
+    V._logged = V.page;
+    // Raw fetch with keepalive so the last few seconds still land when the tab closes.
+    try {
+      fetch(R.cfg.SUPABASE_URL + '/rest/v1/rpc/log_page', {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type':'application/json', 'apikey': R.cfg.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + R.session.access_token },
+        body: JSON.stringify({ p_session: V.session, p_page: V.page, p_seconds: Math.min(secs, 60) })
+      }).then(function(r){ if (r.status === 400 || r.status === 403) block('Access to this deck has ended. Contact Meritas if you think this is a mistake.'); }).catch(function(){});
+    } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) flush(false); });
+  window.addEventListener('pagehide', function(){ flush(true); });
+
+  $('#vPrev').addEventListener('click', function(){ goTo(V.page - 1); });
+  $('#vNext').addEventListener('click', function(){ goTo(V.page + 1); });
+  $('#hitPrev').addEventListener('click', function(){ goTo(V.page - 1); });
+  $('#hitNext').addEventListener('click', function(){ goTo(V.page + 1); });
+  $('#vClose').addEventListener('click', closeViewer);
+  $('#vFull').addEventListener('click', function(){
+    if (document.fullscreenElement) document.exitFullscreen(); else if (viewer.requestFullscreen) viewer.requestFullscreen().catch(function(){});
+  });
+  document.addEventListener('keydown', function(e){
+    if (viewer.hidden) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); goTo(V.page + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(V.page - 1); }
+    else if (e.key === 'Home') goTo(1);
+    else if (e.key === 'End') goTo(V.deck.page_count);
+    else if (e.key === 'Escape' && !document.fullscreenElement) closeViewer();
+  });
+  // Swipe on phones
+  var sx = null;
+  $('#stage').addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, { passive:true });
+  $('#stage').addEventListener('touchend', function(e){
+    if (sx == null) return; var dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) > 50) goTo(V.page + (dx < 0 ? 1 : -1));
+  }, { passive:true });
+})();
+</script>
+</body>
+</html>

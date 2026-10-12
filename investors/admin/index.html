@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investor Room Admin | Meritas Equity Partners</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#14120f">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="../room.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="home" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>Meritas Equity Partners</a>
+    <div class="who" id="who" hidden>
+      <span class="email" id="whoEmail"></span>
+      <a href="../" class="btn ghost sm">View room</a>
+      <button class="btn link" id="signOut" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap section" id="app"><p class="fine">Loading…</p></main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="../config.js"></script>
+<script src="../room.js"></script>
+<script>
+(function(){
+  var R = window.Room, $ = R.$, esc = R.esc, sb = R.sb;
+  var app = $('#app');
+  var S = { tab:'investors', decks:[], investors:[], access:[] };
+
+  if (!R.configured) { app.innerHTML = '<p class="err">Not connected yet. Add the Supabase URL and anon key to investors/config.js.</p>'; return; }
+  $('#signOut').addEventListener('click', R.signOut);
+
+  R.init(async function(session){
+    $('#who').hidden = !session;
+    if (!session) { app.className = 'wrap section narrow'; R.renderSignIn(app, { eyebrow:'Investor Room · Admin', title:'Admin sign in', lede:'Meritas partners only. We’ll email you a one-time code.' }); return; }
+    $('#whoEmail').textContent = R.email();
+    var a = await sb.rpc('is_admin');
+    if (!a.data) {
+      app.className = 'wrap section narrow';
+      app.innerHTML = '<div class="stack"><span class="eyebrow">Admin</span><h1>Not authorized</h1><p class="lede">' + esc(R.email()) + ' isn’t a Room admin.</p></div>';
+      return;
+    }
+    app.className = 'wrap section';
+    shell();
+    await reload();
+  });
+
+  function shell(){
+    app.innerHTML =
+      '<div class="stack" style="gap:8px;margin-bottom:24px"><span class="eyebrow">Investor Room · Admin</span><h1>Manage the room</h1></div>' +
+      '<div class="tabs" role="tablist">' +
+        tabBtn('investors','Investors') + tabBtn('decks','Decks') + tabBtn('activity','Activity') +
+      '</div><div id="panel"></div>';
+    app.querySelectorAll('.tab').forEach(function(b){ b.addEventListener('click', function(){ S.tab = b.dataset.tab; syncTabs(); render(); }); });
+    syncTabs();
+  }
+  function tabBtn(id, label){ return '<button class="tab" role="tab" data-tab="' + id + '">' + label + '</button>'; }
+  function syncTabs(){ app.querySelectorAll('.tab').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.tab === S.tab); }); }
+
+  async function reload(){
+    var r = await Promise.all([
+      sb.from('decks').select('*').order('created_at', { ascending:false }),
+      sb.from('investors').select('*').order('created_at', { ascending:false }),
+      sb.from('deck_access').select('*'),
+      sb.from('deck_activity').select('email, last_viewed, total_seconds, deck_id')
+    ]);
+    S.decks = r[0].data || []; S.investors = r[1].data || []; S.access = r[2].data || []; S.activity = r[3].data || [];
+    render();
+  }
+  function render(){ ({ investors:renderInvestors, decks:renderDecks, activity:renderActivity })[S.tab](); }
+  function has(deckId, email){ return S.access.some(function(a){ return a.deck_id === deckId && a.email === email; }); }
+
+  /* ---------------- Investors ---------------- */
+  function renderInvestors(){
+    var p = $('#panel');
+    var live = S.decks.filter(function(d){ return d.page_count > 0; });
+    var rows = S.investors.map(function(i){
+      var acts = S.activity.filter(function(a){ return a.email === i.email; });
+      var last = acts.reduce(function(m, a){ return !m || a.last_viewed > m ? a.last_viewed : m; }, null);
+      var secs = acts.reduce(function(s, a){ return s + (a.total_seconds || 0); }, 0);
+      return '<tr data-email="' + esc(i.email) + '">' +
+        '<td><strong>' + esc(i.name || '—') + '</strong><div class="fine">' + esc(i.email) + (i.firm ? ' · ' + esc(i.firm) : '') + '</div></td>' +
+        live.map(function(d){ return '<td class="c"><input type="checkbox" data-grant="' + d.id + '" ' + (has(d.id, i.email) ? 'checked' : '') + ' aria-label="' + esc(d.title) + ' access for ' + esc(i.email) + '"></td>'; }).join('') +
+        '<td>' + (last ? R.fmtWhen(last) + '<div class="fine">' + R.fmtDur(secs) + ' total</div>' : '<span class="fine">Never</span>') + '</td>' +
+        '<td><button class="btn ghost sm" data-toggle>' + (i.active ? '<span class="pill on">Active</span>' : '<span class="pill off">Revoked</span>') + '</button></td>' +
+        '<td><button class="btn ghost sm" data-invite>Copy invite</button></td>' +
+      '</tr>';
+    }).join('');
+
+    p.innerHTML =
+      '<div class="stack">' +
+        '<form class="card stack" id="addForm" style="gap:14px">' +
+          '<h3>Add an investor</h3>' +
+          '<div class="grid2">' +
+            '<div><label for="aEmail">Email</label><input type="email" id="aEmail" required placeholder="name@firm.com"></div>' +
+            '<div><label for="aName">Name</label><input type="text" id="aName" placeholder="Jane Smith"></div>' +
+            '<div><label for="aFirm">Firm (optional)</label><input type="text" id="aFirm"></div>' +
+          '</div>' +
+          (live.length ? '<div><label>Give access to</label><div style="display:flex;gap:16px;flex-wrap:wrap">' +
+            live.map(function(d){ return '<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:14px;color:var(--ink);margin:0"><input type="checkbox" name="aDeck" value="' + d.id + '" checked>' + esc(d.title) + '</label>'; }).join('') +
+          '</div></div>' : '') +
+          '<div><button class="btn gold" type="submit">Add investor</button> <span class="err" id="aErr" hidden></span></div>' +
+        '</form>' +
+        (S.investors.length ?
+          '<div class="tablewrap"><table><thead><tr><th>Investor</th>' +
+            live.map(function(d){ return '<th class="c" title="' + esc(d.title) + '">' + esc(d.title.length > 18 ? d.title.slice(0, 17) + '…' : d.title) + '</th>'; }).join('') +
+            '<th>Last viewed</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+          '<p class="fine">Checkboxes control which decks each investor sees. Revoking blocks the room immediately, including anyone mid-view.</p>'
+          : '<p class="fine">No investors yet. Add the first one above.</p>') +
+      '</div>';
+
+    $('#addForm').addEventListener('submit', async function(e){
+      e.preventDefault();
+      var err = $('#aErr'); err.hidden = true;
+      var email = $('#aEmail').value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Enter a valid email.'; err.hidden = false; return; }
+      var r = await sb.from('investors').upsert({ email: email, name: $('#aName').value.trim() || null, firm: $('#aFirm').value.trim() || null, active: true });
+      if (r.error) { err.textContent = r.error.message; err.hidden = false; return; }
+      var grants = [].map.call(p.querySelectorAll('input[name=aDeck]:checked'), function(c){ return { deck_id: c.value, email: email }; });
+      if (grants.length) await sb.from('deck_access').upsert(grants);
+      R.toast('Added ' + email);
+      await reload();
+    });
+
+    p.querySelectorAll('tr[data-email]').forEach(function(tr){
+      var email = tr.dataset.email, inv = S.investors.find(function(i){ return i.email === email; });
+      tr.querySelectorAll('[data-grant]').forEach(function(cb){
+        cb.addEventListener('change', async function(){
+          var r = cb.checked ? await sb.from('deck_access').upsert({ deck_id: cb.dataset.grant, email: email })
+                             : await sb.from('deck_access').delete().match({ deck_id: cb.dataset.grant, email: email });
+          if (r.error) { R.toast('Couldn’t update: ' + r.error.message); cb.checked = !cb.checked; return; }
+          if (cb.checked) S.access.push({ deck_id: cb.dataset.grant, email: email });
+          else S.access = S.access.filter(function(a){ return !(a.deck_id === cb.dataset.grant && a.email === email); });
+          R.toast(cb.checked ? 'Access granted' : 'Access removed');
+        });
+      });
+      tr.querySelector('[data-toggle]').addEventListener('click', async function(){
+        var r = await sb.from('investors').update({ active: !inv.active }).eq('email', email);
+        if (r.error) { R.toast(r.error.message); return; }
+        R.toast(inv.active ? 'Access revoked for ' + email : 'Access restored for ' + email);
+        await reload();
+      });
+      tr.querySelector('[data-invite]').addEventListener('click', function(){
+        var first = inv.name ? inv.name.split(' ')[0] : '';
+        var txt = (first ? first + ',\n\n' : '') +
+          'I’ve set you up in the Meritas Investor Room so you can review our materials.\n\n' +
+          'Go to ' + location.origin + '/investors/ and sign in with ' + email + '. You’ll get a one-time code by email, no password needed.\n\n' +
+          'The materials are confidential and for you only. Let me know if you have any questions.';
+        navigator.clipboard.writeText(txt).then(function(){ R.toast('Invite text copied. Paste it into your email.'); }, function(){ prompt('Copy this invite:', txt); });
+      });
+    });
+  }
+
+  /* ---------------- Decks ---------------- */
+  function renderDecks(){
+    var p = $('#panel');
+    p.innerHTML =
+      '<div class="stack">' +
+        '<form class="card stack" id="upForm" style="gap:14px">' +
+          '<h3>Upload a deck</h3>' +
+          '<p class="fine">Pick a PDF. Each page is turned into an image right here in your browser and stored privately. The PDF itself is never uploaded, so there’s nothing for anyone to download.</p>' +
+          '<div class="grid2">' +
+            '<div><label for="uTitle">Title</label><input type="text" id="uTitle" required placeholder="Waterford Townhomes"></div>' +
+            '<div><label for="uSub">Subtitle (optional)</label><input type="text" id="uSub" placeholder="Clarence, NY · Investor deck"></div>' +
+          '</div>' +
+          '<div><label for="uFile">PDF</label><input type="file" id="uFile" accept="application/pdf" required></div>' +
+          '<div class="progress" id="uProg" hidden><i></i></div><p class="fine" id="uStatus" hidden></p>' +
+          '<div><button class="btn gold" type="submit" id="uBtn">Upload deck</button> <span class="err" id="uErr" hidden></span></div>' +
+        '</form>' +
+        (S.decks.length ? '<div class="tablewrap"><table><thead><tr><th>Deck</th><th class="num">Pages</th><th class="num">Investors</th><th>Added</th><th>Status</th><th></th></tr></thead><tbody>' +
+          S.decks.map(function(d){
+            var n = S.access.filter(function(a){ return a.deck_id === d.id; }).length;
+            return '<tr data-id="' + d.id + '"><td><strong>' + esc(d.title) + '</strong>' + (d.subtitle ? '<div class="fine">' + esc(d.subtitle) + '</div>' : '') + '</td>' +
+              '<td class="num">' + (d.page_count || '<span class="err">upload incomplete</span>') + '</td><td class="num">' + n + '</td>' +
+              '<td>' + R.fmtWhen(d.created_at) + '</td>' +
+              '<td><button class="btn ghost sm" data-toggle>' + (d.active ? '<span class="pill on">Live</span>' : '<span class="pill off">Hidden</span>') + '</button></td>' +
+              '<td style="white-space:nowrap"><a class="btn ghost sm" href="../#/deck/' + d.id + '/1">Preview</a> <button class="btn link" data-del>Delete</button></td></tr>';
+          }).join('') + '</tbody></table></div>' : '') +
+      '</div>';
+
+    $('#upForm').addEventListener('submit', upload);
+    p.querySelectorAll('tr[data-id]').forEach(function(tr){
+      var d = S.decks.find(function(x){ return x.id === tr.dataset.id; });
+      tr.querySelector('[data-toggle]').addEventListener('click', async function(){
+        await sb.from('decks').update({ active: !d.active }).eq('id', d.id); await reload();
+      });
+      tr.querySelector('[data-del]').addEventListener('click', async function(e){
+        var b = e.currentTarget;
+        if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Click again to delete'; b.style.color = 'var(--bad)'; setTimeout(function(){ b.dataset.armed = ''; b.textContent = 'Delete'; b.style.color = ''; }, 4000); return; }
+        b.textContent = 'Deleting…';
+        var paths = []; for (var i = 1; i <= Math.max(d.page_count, 1); i++) paths.push(R.pagePath(d.id, i));
+        var listed = await sb.storage.from('decks').list(d.id, { limit: 1000 });
+        if (listed.data) paths = listed.data.map(function(f){ return d.id + '/' + f.name; });
+        if (paths.length) await sb.storage.from('decks').remove(paths);
+        await sb.from('decks').delete().eq('id', d.id);
+        R.toast('Deleted ' + d.title); await reload();
+      });
+    });
+  }
+
+  async function upload(e){
+    e.preventDefault();
+    var err = $('#uErr'), prog = $('#uProg'), bar = prog.querySelector('i'), st = $('#uStatus'), btn = $('#uBtn');
+    err.hidden = true;
+    var file = $('#uFile').files[0], title = $('#uTitle').value.trim();
+    if (!title) { err.textContent = 'Add a title.'; err.hidden = false; return; }
+    if (!file) { err.textContent = 'Pick a PDF.'; err.hidden = false; return; }
+    btn.disabled = true; prog.hidden = false; st.hidden = false; bar.style.width = '0';
+    var deckId = null;
+    try {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      st.textContent = 'Reading PDF…';
+      var pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      var n = pdf.numPages;
+      var ins = await sb.from('decks').insert({ title: title, subtitle: $('#uSub').value.trim() || null, page_count: 0, active: false }).select().single();
+      if (ins.error) throw ins.error;
+      deckId = ins.data.id;
+      for (var i = 1; i <= n; i++) {
+        st.textContent = 'Processing page ' + i + ' of ' + n + '…';
+        var page = await pdf.getPage(i);
+        var base = page.getViewport({ scale: 1 });
+        var scale = Math.min(2200 / base.width, 3);   // ~2200px wide: sharp on big screens, still light
+        var vp = page.getViewport({ scale: scale });
+        var c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+        var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+        var blob = await new Promise(function(res){ c.toBlob(res, 'image/jpeg', 0.86); });
+        var up = await sb.storage.from('decks').upload(R.pagePath(deckId, i), blob, { contentType: 'image/jpeg', upsert: true, cacheControl: '0' });
+        if (up.error) throw up.error;
+        bar.style.width = Math.round(i / n * 100) + '%';
+        page.cleanup(); c.width = c.height = 0;
+      }
+      var fin = await sb.from('decks').update({ page_count: n, active: true }).eq('id', deckId);
+      if (fin.error) throw fin.error;
+      st.textContent = 'Done. ' + n + ' pages uploaded. Give investors access on the Investors tab.';
+      R.toast('Uploaded ' + title);
+      $('#upForm').reset();
+      await reload();
+    } catch (ex) {
+      err.textContent = 'Upload failed: ' + (ex.message || ex); err.hidden = false;
+      if (deckId) { st.textContent = 'Partial upload saved as hidden. Delete it and try again.'; await reload(); }
+    } finally { btn.disabled = false; }
+  }
+
+  /* ---------------- Activity ---------------- */
+  async function renderActivity(){
+    var p = $('#panel');
+    var live = S.decks.filter(function(d){ return d.page_count > 0; });
+    if (!live.length) { p.innerHTML = '<p class="fine">Upload a deck to start tracking views.</p>'; return; }
+    S.actDeck = S.actDeck && live.some(function(d){ return d.id === S.actDeck; }) ? S.actDeck : live[0].id;
+    p.innerHTML =
+      '<div class="stack">' +
+        '<div class="toolbar"><div style="min-width:260px"><label for="actDeck">Deck</label><select id="actDeck">' +
+          live.map(function(d){ return '<option value="' + d.id + '"' + (d.id === S.actDeck ? ' selected' : '') + '>' + esc(d.title) + '</option>'; }).join('') +
+        '</select></div><button class="btn ghost sm" id="actRefresh">Refresh</button></div>' +
+        '<div id="actBody"><p class="fine">Loading…</p></div>' +
+      '</div>';
+    $('#actDeck').addEventListener('change', function(){ S.actDeck = this.value; renderActivity(); });
+    $('#actRefresh').addEventListener('click', async function(){ await reload(); });
+
+    var deck = live.find(function(d){ return d.id === S.actDeck; });
+    var r = await Promise.all([
+      sb.from('deck_activity').select('*').eq('deck_id', deck.id).order('last_viewed', { ascending:false }),
+      sb.from('page_heat').select('*').eq('deck_id', deck.id).order('page'),
+      sb.from('view_sessions').select('id, email, started_at, last_seen_at, seconds, user_agent').eq('deck_id', deck.id).order('started_at', { ascending:false }).limit(40)
+    ]);
+    var who = r[0].data || [], heat = r[1].data || [], sessions = r[2].data || [];
+    var totalOpens = who.reduce(function(s, w){ return s + w.opens; }, 0);
+    var totalSecs = who.reduce(function(s, w){ return s + (w.total_seconds || 0); }, 0);
+    var maxSecs = heat.reduce(function(m, h){ return Math.max(m, h.total_seconds || 0); }, 1);
+    var heatMap = {}; heat.forEach(function(h){ heatMap[h.page] = h; });
+    var granted = S.access.filter(function(a){ return a.deck_id === deck.id; }).map(function(a){ return a.email; });
+    var notOpened = granted.filter(function(e){ return !who.some(function(w){ return w.email === e; }); });
+
+    var html =
+      '<div class="grid2">' +
+        stat('Viewers', who.length + ' <span class="fine">of ' + granted.length + ' invited</span>') +
+        stat('Opens', totalOpens) + stat('Time in deck', R.fmtDur(totalSecs)) +
+      '</div>';
+
+    html += '<h2 style="margin-top:12px">Who viewed</h2>' + (who.length ?
+      '<div class="tablewrap"><table><thead><tr><th>Investor</th><th class="num">Opens</th><th class="num">Time</th><th class="num">Pages seen</th><th>First viewed</th><th>Last viewed</th></tr></thead><tbody>' +
+      who.map(function(w){
+        return '<tr><td><strong>' + esc(w.name || w.email) + '</strong><div class="fine">' + esc(w.email) + (w.firm ? ' · ' + esc(w.firm) : '') + '</div></td>' +
+          '<td class="num">' + w.opens + '</td><td class="num">' + R.fmtDur(w.total_seconds) + '</td><td class="num">' + w.pages_seen + ' / ' + deck.page_count + '</td>' +
+          '<td>' + R.fmtWhen(w.first_viewed) + '</td><td>' + R.fmtWhen(w.last_viewed) + '</td></tr>';
+      }).join('') + '</tbody></table></div>' : '<p class="fine">No views yet.</p>');
+
+    if (notOpened.length) html += '<p class="fine">Invited but not opened yet: ' + notOpened.map(esc).join(', ') + '</p>';
+
+    html += '<h2 style="margin-top:12px">Time by page</h2><p class="fine">Where readers spent their time, across everyone.</p><div class="card heat">';
+    for (var i = 1; i <= deck.page_count; i++) {
+      var h = heatMap[i] || { viewers:0, total_seconds:0 };
+      html += '<div class="row"><span>p. ' + i + '</span><div class="bar"><i style="width:' + Math.round((h.total_seconds || 0) / maxSecs * 100) + '%"></i></div><span>' + R.fmtDur(h.total_seconds) + ' · ' + h.viewers + ' ' + (h.viewers === 1 ? 'person' : 'people') + '</span></div>';
+    }
+    html += '</div>';
+
+    html += '<h2 style="margin-top:12px">Recent sessions</h2>' + (sessions.length ?
+      '<div class="tablewrap"><table><thead><tr><th>When</th><th>Who</th><th class="num">Time</th><th>Device</th><th></th></tr></thead><tbody>' +
+      sessions.map(function(s){
+        return '<tr data-sid="' + s.id + '"><td>' + R.fmtWhen(s.started_at) + '</td><td>' + esc(s.email) + '</td><td class="num">' + R.fmtDur(s.seconds) + '</td><td class="fine">' + esc(device(s.user_agent)) + '</td>' +
+          '<td><button class="btn link" data-detail>Pages</button></td></tr><tr hidden data-detail-for="' + s.id + '"><td colspan="5"></td></tr>';
+      }).join('') + '</tbody></table></div>' : '<p class="fine">None yet.</p>');
+
+    $('#actBody').innerHTML = '<div class="stack">' + html + '</div>';
+    $('#actBody').querySelectorAll('[data-detail]').forEach(function(b){
+      b.addEventListener('click', async function(){
+        var sid = b.closest('tr').dataset.sid, row = $('[data-detail-for="' + sid + '"]');
+        if (!row.hidden) { row.hidden = true; return; }
+        var pv = await sb.from('page_views').select('page, seconds').eq('session_id', sid).order('page');
+        row.querySelector('td').innerHTML = (pv.data || []).length ? '<div class="fine">' + pv.data.map(function(x){ return 'p.' + x.page + ' ' + R.fmtDur(x.seconds); }).join(' · ') + '</div>' : '<span class="fine">No page time recorded.</span>';
+        row.hidden = false;
+      });
+    });
+  }
+  function stat(label, val){ return '<div class="card"><div class="eyebrow">' + label + '</div><div style="font-family:var(--serif);font-size:2rem;font-weight:600;margin-top:6px">' + val + '</div></div>'; }
+  function device(ua){
+    ua = ua || '';
+    var os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac OS X/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
+    var br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : /Firefox\//.test(ua) ? 'Firefox' : '';
+    return os + (br ? ' · ' + br : '');
+  }
+})();
+</script>
+</body>
+</html>

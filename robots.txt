@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /investors/
 
 Sitemap: https://meritasep.com/sitemap.xml

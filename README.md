@@ -11,6 +11,20 @@ The Meritas Equity Partners website. Static single-page site, no build step.
 | `og-image.png` | Link-preview card for LinkedIn, email, iMessage |
 | `scorecard/index.html` | Exit Readiness Scorecard (meritasep.com/scorecard/), a free lead-capture quiz; results email via FormSubmit |
 | `robots.txt`, `sitemap.xml` | Search engine directives |
+| `investors/` | Investor Room (meritasep.com/investors/): gated, view-only deck room with view tracking |
+| `investors/admin/` | Room admin: add/revoke investors, upload decks, see who viewed what |
+
+## Investor Room
+
+Login, private files and tracking run on Supabase (project `gthdplsmifonoxricvvp`), because this repo is public and GitHub Pages can't gate anything.
+
+- **Never put a deck PDF or image in this repo.** Decks are uploaded through `/investors/admin/`; the browser turns each page into an image and stores it in Supabase's private `decks` bucket. The PDF itself is never uploaded.
+- Login is an emailed one-time code / magic link. Anyone can request one, but only emails on the investor list (and granted a deck) see anything; this is enforced by the database (`investors/setup.sql`), not the page.
+- Admins: sfarrell@ and spearce@meritasep.com (the `admins` table).
+- Viewing: pages are drawn on a canvas with the viewer's email + date watermarked across them. Right-click, drag, Ctrl/Cmd+S/P and printing are blocked. Screenshots can't be stopped; the watermark makes a leak traceable.
+- Tracking: each open is a session; the viewer pings time-on-page every 10s while the tab is visible and active (idle >2 min stops the clock).
+- `investors/config.js` holds the Supabase URL and anon key. Both are public by design. Never put the service_role key in this repo.
+- `investors/setup.sql` is the full database setup; safe to re-run.
 
 ## How edits work
 
