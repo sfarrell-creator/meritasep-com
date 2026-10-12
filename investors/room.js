@@ -69,30 +69,30 @@
           '<div class="stack" style="gap:20px">' +
             '<div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>' +
             '<span class="eyebrow">' + Room.esc(opts.eyebrow || 'Investor Room') + '</span>' +
-            '<h1>' + (opts.titleHtml || 'Private access to <em>Meritas</em> opportunities.') + '</h1>' +
-            '<p class="lede">' + Room.esc(opts.lede || 'Offering materials for invited investors in Meritas Equity Partners real estate and private equity investments across Western New York.') + '</p>' +
+            '<h1>' + (opts.titleHtml || 'The deals we’re working on, <em>up close</em>.') + '</h1>' +
+            '<p class="lede">' + Room.esc(opts.lede || 'This is where we share the full picture with the people investing alongside us in Buffalo Niagara buildings and businesses. The numbers, the plan, and how we’ll run it.') + '</p>' +
           '</div>' +
           '<ul class="points">' +
-            '<li>Sign in with a one-time code. No password to remember.</li>' +
-            '<li>Materials open here, view-only, and are watermarked to you.</li>' +
-            '<li>Your access is personal and can’t be shared.</li>' +
+            '<li>Sign in with a code we email you. No password.</li>' +
+            '<li>Everything opens right here. Nothing to download.</li>' +
+            '<li>Every page carries your name, so it stays between us.</li>' +
           '</ul>' +
         '</section>' +
         '<section class="auth-form"><div class="stack">' +
           '<form class="stack" id="emailForm" novalidate style="gap:20px">' +
-            '<div class="stack" style="gap:8px"><h2>Sign in</h2><p class="fine">Use the email address Meritas invited.</p></div>' +
+            '<div class="stack" style="gap:8px"><h2>Sign in</h2><p class="fine">Use the email your invite came to.</p></div>' +
             '<div><label for="em">Email</label><input type="email" id="em" autocomplete="email" required placeholder="you@company.com"></div>' +
-            '<button class="btn gold block" type="submit">Email me a sign-in code →</button>' +
+            '<button class="btn gold block" type="submit">Send my code →</button>' +
             '<p class="err" id="emErr" hidden></p>' +
           '</form>' +
           '<form class="stack" id="codeForm" hidden novalidate style="gap:20px">' +
-            '<div class="stack" style="gap:8px"><h2>Check your email</h2><p class="fine">We sent a sign-in link to <strong id="sentTo" style="color:var(--ink)"></strong>. Click it, or enter the code from the email.</p></div>' +
+            '<div class="stack" style="gap:8px"><h2>Check your inbox</h2><p class="fine">We sent a sign-in link to <strong id="sentTo" style="color:var(--ink)"></strong>. Click it, or type the code from the email here.</p></div>' +
             '<div><label for="cd">Sign-in code</label><input type="text" id="cd" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="••••••"></div>' +
-            '<button class="btn block" type="submit">Sign in</button>' +
+            '<button class="btn block" type="submit">Open the room</button>' +
             '<p class="err" id="cdErr" hidden></p>' +
-            '<button class="btn link" type="button" id="restart" style="justify-self:start">Use a different email</button>' +
+            '<button class="btn link" type="button" id="restart" style="justify-self:start">Wrong email? Start over</button>' +
           '</form>' +
-          '<p class="fine" style="border-top:1px solid var(--hairline);padding-top:18px">Confidential. For invited investors only. Questions? <a href="mailto:' + Room.esc(cfg.CONTACT_EMAIL) + '">' + Room.esc(cfg.CONTACT_EMAIL) + '</a></p>' +
+          '<p class="fine" style="border-top:1px solid var(--hairline);padding-top:18px">The room is invite only. Want a look at what we’re working on? Reach us at <a href="mailto:' + Room.esc(cfg.CONTACT_EMAIL) + '">' + Room.esc(cfg.CONTACT_EMAIL) + '</a>.</p>' +
         '</div></section>' +
       '</div>';
     var email = '';
@@ -101,12 +101,12 @@
       e.preventDefault();
       var err = Room.$('#emErr', el); err.hidden = true;
       email = Room.$('#em', el).value.trim().toLowerCase();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Enter a valid email address.'; err.hidden = false; return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'That doesn’t look like an email address.'; err.hidden = false; return; }
       var b = emailForm.querySelector('button'); b.disabled = true; b.textContent = 'Sending…';
       var r = await Room.sendCode(email, opts.redirectPath);
-      b.disabled = false; b.textContent = 'Email me a code';
+      b.disabled = false; b.textContent = 'Send my code →';
       if (r.error) {
-        err.textContent = /rate|seconds/i.test(r.error.message) ? 'Too many requests. Wait a minute and try again.' : 'Couldn’t send the email. ' + r.error.message;
+        err.textContent = /rate|seconds/i.test(r.error.message) ? 'Too many tries. Give it a minute and try again.' : 'We couldn’t send the email. Try again, or reach us at ' + cfg.CONTACT_EMAIL + '.';
         err.hidden = false; return;
       }
       Room.$('#sentTo', el).textContent = email;
@@ -116,11 +116,11 @@
       e.preventDefault();
       var err = Room.$('#cdErr', el); err.hidden = true;
       var code = Room.$('#cd', el).value.replace(/\D/g, '');
-      if (code.length < 6) { err.textContent = 'Enter the code from the email.'; err.hidden = false; return; }
+      if (code.length < 6) { err.textContent = 'Type the code from the email.'; err.hidden = false; return; }
       var b = codeForm.querySelector('button[type=submit]'); b.disabled = true;
       var r = await Room.verifyCode(email, code);
       b.disabled = false;
-      if (r.error) { err.textContent = 'That code didn’t work or has expired. Request a new one.'; err.hidden = false; }
+      if (r.error) { err.textContent = 'That code didn’t work or it expired. Start over to get a new one.'; err.hidden = false; }
     });
     Room.$('#restart', el).addEventListener('click', function(){ codeForm.hidden = true; emailForm.hidden = false; });
   };
@@ -195,6 +195,6 @@
   document.addEventListener('keydown', function(e){
     if (!document.querySelector('.viewer:not([hidden])')) return;
     var k = (e.key || '').toLowerCase();
-    if ((e.metaKey || e.ctrlKey) && (k === 's' || k === 'p' || k === 'c')) { e.preventDefault(); Room.toast('Saving and printing are disabled for these materials.'); }
+    if ((e.metaKey || e.ctrlKey) && (k === 's' || k === 'p' || k === 'c')) { e.preventDefault(); Room.toast('Saving and printing are turned off for these materials.'); }
   }, true);
 })();

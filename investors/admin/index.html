@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="../room.css?v=202610121652">
+<link rel="stylesheet" href="../room.css?v=202610121655">
 </head>
 <body>
 
@@ -30,8 +30,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="../config.js?v=202610121652"></script>
-<script src="../room.js?v=202610121652"></script>
+<script src="../config.js?v=202610121655"></script>
+<script src="../room.js?v=202610121655"></script>
 <script>
 (function(){
   var R = window.Room, $ = R.$, esc = R.esc, sb = R.sb;
@@ -43,7 +43,7 @@
 
   R.init(async function(session){
     $('#who').hidden = !session;
-    if (!session) { R.renderSignIn(app, { base:'../', eyebrow:'Investor Room · Admin', titleHtml:'Run the <em>room</em>.', lede:'Add investors, share decks, and see who’s reading what. Meritas partners only.' }); return; }
+    if (!session) { R.renderSignIn(app, { base:'../', eyebrow:'Investor Room · Admin', titleHtml:'Run the <em>room</em>.', lede:'Add investors, share decks, and see who’s reading what. Partners only.' }); return; }
     $('#whoEmail').textContent = R.email();
     var a = await sb.rpc('is_admin');
     if (!a.data) {
@@ -155,11 +155,15 @@
       });
       tr.querySelector('[data-invite]').addEventListener('click', function(){
         var first = inv.name ? inv.name.split(' ')[0] : '';
-        var txt = (first ? first + ',\n\n' : '') +
-          'I’ve set you up in the Meritas Investor Room so you can review our materials.\n\n' +
-          'Go to ' + location.origin + '/investors/ and sign in with ' + email + '. You’ll get a one-time code by email, no password needed.\n\n' +
-          'The materials are confidential and for you only. Let me know if you have any questions.';
-        navigator.clipboard.writeText(txt).then(function(){ R.toast('Invite text copied. Paste it into your email.'); }, function(){ prompt('Copy this invite:', txt); });
+        var me = R.email(), sender = /^sfarrell@/.test(me) ? 'Spencer' : /^spearce@/.test(me) ? 'Shawn' : '';
+        var titles = S.decks.filter(function(d){ return d.page_count > 0 && has(d.id, email); }).map(function(d){ return d.title; });
+        var what = titles.length === 1 ? 'the ' + titles[0] + ' deck' : titles.length > 1 ? titles.slice(0, -1).join(', ') + ' and ' + titles[titles.length - 1] : 'what we’re working on';
+        var txt = 'Hey ' + (first || 'there') + ',\n\n' +
+          'Wanted to get you a closer look at ' + what + '. I set you up in our investor room so you can go through it whenever works for you.\n\n' +
+          'Head to ' + location.origin + '/investors/ and sign in with ' + email + '. It’ll email you a code, no password needed.\n\n' +
+          'Take a look and let me know when you want to talk through it.\n\n' +
+          'Best,' + (sender ? '\n' + sender : '');
+        navigator.clipboard.writeText(txt).then(function(){ R.toast('Invite copied. Paste it into an email from your own inbox.'); }, function(){ prompt('Copy this invite:', txt); });
       });
     });
   }

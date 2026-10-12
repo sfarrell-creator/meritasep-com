@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="room.css?v=202610121652">
+<link rel="stylesheet" href="room.css?v=202610121655">
 </head>
 <body>
 
@@ -33,7 +33,7 @@
 <!-- Deck viewer -->
 <div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Deck viewer">
   <div class="vbar">
-    <div class="left"><button class="vbtn" id="vClose" type="button" aria-label="Back to materials">← <span class="lbl">All materials</span></button></div>
+    <div class="left"><button class="vbtn" id="vClose" type="button" aria-label="Back to the room">← <span class="lbl">Back</span></button></div>
     <div class="title" id="vTitle"></div>
     <div class="right"><button class="vbtn" id="vFull" type="button" aria-label="Full screen">⤢ <span class="lbl">Full screen</span></button></div>
   </div>
@@ -51,13 +51,13 @@
       <span class="count" id="vCount">1 / 1</span>
       <button class="vbtn" id="vNext" type="button">Next →</button>
     </div>
-    <div class="conf">Confidential · Meritas Equity Partners · For the named recipient only</div>
+    <div class="conf">Confidential · Prepared for you by Meritas Equity Partners</div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610121652"></script>
-<script src="room.js?v=202610121652"></script>
+<script src="config.js?v=202610121655"></script>
+<script src="room.js?v=202610121655"></script>
 <script>
 (function(){
   var R = window.Room, $ = R.$, esc = R.esc;
@@ -66,7 +66,7 @@
 
   if (!R.configured) {
     app.innerHTML = '<div class="wrap section narrow stack"><span class="eyebrow">Investor Room</span><h1>Coming soon</h1>' +
-      '<p class="lede">The investor room isn’t open yet. For materials, email <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p></div>';
+      '<p class="lede">The investor room isn’t open yet. For a look at what we’re working on, reach us at <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p></div>';
     return;
   }
 
@@ -88,9 +88,9 @@
     decks = d.data || [];
 
     if (!isAdmin && (!inv.data || !inv.data.active)) {
-      app.innerHTML = '<div class="wrap section narrow stack"><span class="eyebrow">Investor Room</span><h1>No access yet</h1>' +
-        '<p class="lede"><strong>' + esc(R.email()) + '</strong> isn’t on the invite list. If Meritas sent you here, reply to their email or contact <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p>' +
-        '<p class="fine">Signed in with a different email than the one you were invited with? <button class="btn link" type="button" id="so2">Sign out and try again</button></p></div>';
+      app.innerHTML = '<div class="wrap section narrow stack"><span class="eyebrow">Investor Room</span><h1>We don’t have you set up yet.</h1>' +
+        '<p class="lede"><strong>' + esc(R.email()) + '</strong> isn’t on our list for the room. If we sent you an invite, it may have gone to a different email.</p>' +
+        '<p class="fine"><button class="btn link" type="button" id="so2">Try a different email</button> or reach us at <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a> and we’ll get you sorted.</p></div>';
       $('#so2').addEventListener('click', R.signOut);
       return;
     }
@@ -101,13 +101,13 @@
         '<div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>' +
         '<span class="eyebrow">Investor Room' + (isAdmin ? ' · Admin view' : '') + '</span>' +
         '<h1>' + (first ? 'Welcome, <em>' + esc(first) + '</em>.' : 'Welcome to the <em>room</em>.') + '</h1>' +
-        '<p class="lede">Materials shared with you by Meritas Equity Partners. Everything opens here in your browser, view-only, and is watermarked to you.</p>' +
+        '<p class="lede">Here’s what we’ve shared with you. Take your time with it. When questions come up, reach out to us directly and we’ll walk you through it.</p>' +
       '</div></section>' +
       '<section class="wrap section stack">' +
-        '<div class="stack" style="gap:6px"><span class="eyebrow">Your materials</span><h2>' + (decks.length === 1 ? '1 document' : decks.length + ' documents') + ' shared with you</h2></div>' +
+        '<div class="stack" style="gap:6px"><span class="eyebrow">Shared with you</span><h2>' + (decks.length === 1 ? 'One opportunity' : decks.length + ' opportunities') + ' to look at</h2></div>' +
         (decks.length ? '<div class="decks" id="deckList"></div>' :
-          '<div class="empty"><h3>Nothing here yet</h3><p class="fine">When Meritas shares materials with you, they’ll appear here.</p></div>') +
-        '<p class="fine">Questions about an opportunity? Email <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p>' +
+          '<div class="empty"><h3>Nothing here yet</h3><p class="fine">When we have a deal to show you, it’ll be right here. We’ll let you know.</p></div>') +
+        '<p class="fine">Questions on a deal? Reply to your invite or email <a href="mailto:' + esc(R.cfg.CONTACT_EMAIL) + '">' + esc(R.cfg.CONTACT_EMAIL) + '</a>.</p>' +
       '</section>';
 
     var list = $('#deckList');
@@ -146,7 +146,7 @@
     viewer.hidden = false; document.body.style.overflow = 'hidden';
     $('#vClose').focus();
     var s = await R.sb.rpc('start_view', { p_deck: k.id, p_ua: navigator.userAgent });
-    if (s.error) { block('Access to this deck has ended. Contact Meritas if you think this is a mistake.'); return; }
+    if (s.error) { block('This one isn’t available to you anymore. If that seems wrong, reach us at ' + R.cfg.CONTACT_EMAIL + '.'); return; }
     V.session = s.data;
     show(p);
     clearInterval(V.timer); V.timer = setInterval(tick, 1000);
@@ -188,7 +188,7 @@
       [p + 1, p - 1, p + 2].forEach(function(n){ if (n >= 1 && n <= k.page_count) R.loadPage(k.id, n).catch(function(){}); });
     } catch (e) {
       if (tok !== V.token) return;
-      block('This page couldn’t be loaded. Your access may have changed. Contact Meritas if you need help.');
+      block('This page didn’t load. Refresh to try again, or reach us at ' + R.cfg.CONTACT_EMAIL + ' if it keeps happening.');
     }
   }
 
@@ -213,7 +213,7 @@
         method: 'POST', keepalive: true,
         headers: { 'Content-Type':'application/json', 'apikey': R.cfg.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + R.session.access_token },
         body: JSON.stringify({ p_session: V.session, p_page: V.page, p_seconds: Math.min(secs, 60) })
-      }).then(function(r){ if (r.status === 400 || r.status === 403) block('Access to this deck has ended. Contact Meritas if you think this is a mistake.'); }).catch(function(){});
+      }).then(function(r){ if (r.status === 400 || r.status === 403) block('This one isn’t available to you anymore. If that seems wrong, reach us at ' + R.cfg.CONTACT_EMAIL + '.'); }).catch(function(){});
     } catch (e) {}
   }
   document.addEventListener('visibilitychange', function(){ if (document.hidden) flush(false); });
