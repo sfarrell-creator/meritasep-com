@@ -603,10 +603,10 @@
   <!-- TRACK RECORD -->
   <section class="stat-band">
     <div class="wrap stat-grid reveal-stagger" data-reveal>
-      <div class="stat"><span class="num" data-count="77">0</span><span class="label">Units — Waterford Townhomes, Clarence Center, NY</span></div>
-      <div class="stat"><span class="num" data-count="132">0</span><span class="label">Units — The Lawrence, across from Buffalo Niagara Medical Campus</span></div>
+      <div class="stat"><span class="num" data-count="77">77</span><span class="label">Units — Waterford Townhomes, Clarence Center, NY</span></div>
+      <div class="stat"><span class="num" data-count="132">132</span><span class="label">Units — The Lawrence, across from Buffalo Niagara Medical Campus</span></div>
       <div class="stat"><span class="num" data-static="$2–10M">$2–10M</span><span class="label">Target EBITDA range for lower middle-market partners</span></div>
-      <div class="stat"><span class="num" data-count="5" data-suffix="%">0</span><span class="label">Of annual profits committed to WNY education &amp; workforce development</span></div>
+      <div class="stat"><span class="num" data-count="5" data-suffix="%">5%</span><span class="label">Of annual profits committed to WNY education &amp; workforce development</span></div>
     </div>
   </section>
 
@@ -760,10 +760,10 @@
         <div>
           <h5>Who we work with</h5>
           <div class="pill-row">
-            <span class="pill">Owner-led companies, $5M–$75M revenue</span>
-            <span class="pill">Owners 2–5 years from a sale or recap</span>
+            <span class="pill">Owner-led companies, $5M–$25M revenue</span>
             <span class="pill">Founders scaling past themselves</span>
-            <span class="pill">PE-backed portfolio companies</span>
+            <span class="pill">Owners who want it run like an investor would run it, without selling</span>
+            <span class="pill">Buffalo and Rochester based</span>
           </div>
         </div>
         <div>
@@ -804,7 +804,7 @@
           <div>
             <h3>Spencer Farrell</h3>
             <span class="role">Partner</span>
-            <p class="bio">Spencer brings experience as both an operator and investor, spanning private equity, sales leadership, and business operations. Before co-founding Meritas, he worked in private equity, partnering with management teams to accelerate growth. Earlier, he served as Chief Revenue Officer at a global software company, leading revenue generation and international go-to-market execution. He is an active investor in early-stage ventures and real estate projects in Western New York, and serves on multiple boards, including as President of the Canisius High School Board of Governors. He holds a B.S. in Finance and an MBA from Niagara University.</p>
+            <p class="bio">Spencer brings experience as both an operator and investor, spanning private equity, sales leadership, and business operations. Before co-founding Meritas, he worked in private equity, partnering with management teams to accelerate growth. Earlier, he served as Chief Revenue Officer at a global software company, leading revenue generation and international go-to-market execution. He invests directly in Western New York real estate and owner-led companies, and serves on multiple boards, including as President of the Canisius High School Board of Governors. He holds a B.S. in Finance and an MBA from Niagara University.</p>
           </div>
         </div>
       </div>
@@ -991,6 +991,8 @@
       }
     });
   }, { threshold:0.6 });
+  // numbers ship in the HTML for search engines and link previews; reset to 0 only when we will animate
+  if(!reduceMotion) counters.forEach(el => { el.textContent = '0' + (el.getAttribute('data-suffix') || ''); });
   counters.forEach(el => countIo.observe(el));
 
   // active nav highlighting
